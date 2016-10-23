@@ -1,61 +1,67 @@
 from datetime import datetime
 import sqlalchemy
-from sqlalchemy import Table, Column, Integer, String, ForeignKey, DateTime, Boolean
+from sqlalchemy import (
+	Table, Column, Integer, String, ForeignKey, DateTime, Boolean )
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+class User(Base):
+	__tablename__ = 'user'
+	id = Column(Integer, primary_key=True),
+	fname = Column(String(64)),
+	lname = Column(String(64)),
+	email = Column(String(64), unique=True, nullable=False),
+	passwd = Column(String(64), nullable=False),
+	created = Column(DateTime, 
+			default=datetime.utcnow,
+			nullable=False),
+	admin = Column(Boolean, default=False)
+
+class Cookie(Base):
+	__tablename__ = 'cookie'
+	id = Column(Integer, primary_key=True),
+	uid = Column(Integer, ForeignKey('user.id'), primary_key=True),
+	created = Column(DateTime, 
+			default=datetime.utcnow,
+			nullable=False)
+
+class awardCreator(Base):
+	__tablename__ = 'awardCreator'
+	uid = Column(Integer, ForeignKey('user.id'), primary_key=True),
+	org = Column(String(128), nullable=False),
+	city = Column(String(64), nullable=False),
+	# Column('signature', String(64), nullable=False)
+
+class awardType(Base):
+	__tablename__ = 'awardType'
+	id = Column(Integer, primary_key=True),
+	name = Column(String(128), nullable=False)
+
+class award(Base):
+	__tablename__ = 'award'
+	id = Column(Integer, primary_key=True),
+	fname = Column(String(64), nullable=False),
+	lname = Column(String(64), nullable=False),
+	email = Column(String(64), nullable=False),
+	creatorId = Column(Integer, ForeignKey('awardCreator.uid')),
+	awardTypeId = Column(Integer, ForeignKey('awardType.id')),
+	created = Column(DateTime, 
+			default=datetime.utcnow,
+			nullable=False),
 
 def connect(user, passwd, db, host='localhost', port=5432):
 	uri = 'postgresql://' + user + ":" + passwd
 	uri = uri + '@' + host + ':' + str(port) + '/' + db
 	connection = sqlalchemy.create_engine(uri, client_encoding='utf8')
-	metaData = sqlalchemy.MetaData(bind=connection, reflect=True)
-	return connection, metaData
+	Base.metadata.bind = connection
+	dbSession = sessionmaker(bind = engine)
+	session = dbSession()
+	return connection, session
 
-def createTables(con, meta):
-	user = Table('user', meta,
-		Column('id', Integer, primary_key=True),
-		Column('fname', String(64)),
-		Column('lname', String(64)),
-		Column('email', String(64), unique=True, nullable=False),
-		Column('passwd', String(64), nullable=False),
-		Column('created', DateTime, 
-					default=datetime.utcnow,
-					nullable=False),
-		Column('admin', Boolean, default=False)
-	)
-
-	cookie = Table('cookie', meta,
-		Column('id', Integer, primary_key=True),
-		Column('uid', Integer, ForeignKey('user.id'), primary_key=True),
-		Column('created', DateTime, 
-					default=datetime.utcnow,
-					nullable=False)
-	)
-
-	awardCreator = Table('awardCreator', meta,
-		Column('uid', Integer, ForeignKey('user.id'), primary_key=True),
-		Column('org', String(128), nullable=False),
-		Column('city', String(64), nullable=False),
-		# Column('signature', String(64), nullable=False)
-	)
-
-	awardType = Table('awardType', meta,
-		Column('id', Integer, primary_key=True),
-		Column('name', String(128), nullable=False)
-	)
-
-	award = Table('award', meta,
-		Column('id', Integer, primary_key=True),
-		Column('fname', String(64), nullable=False),
-		Column('fname', String(64), nullable=False),
-		Column('email', String(64), nullable=False),
-		Column('creatorId', Integer, ForeignKey('awardCreator.uid')),
-		Column('awardTypeId', Integer, ForeignKey('awardType.id')),
-		Column('created', DateTime, 
-					default=datetime.utcnow,
-					nullable=False),
-	)
-
-	meta.create_all(con)
-
+def createTables():
+	con, session = connect('klompen_db_user', 'BlueDanceMoon42', 'klompen_db')
+	Base.metadata.
+	Base.metadata.create_all(con)
 
 def dropTables(con, meta):
 	meta.drop_all(con)
@@ -147,7 +153,5 @@ def popTables(con, meta):
 		result = con.execute(action)
 			
 if __name__ == "__main__":
-	con, meta = connect('klompen_db_user', 'BlueDanceMoon42', 'klompen_db')
-	dropTables(con, meta)
-	createTables(con, meta)
+	createTables(con)
 	popTables(con, meta)	
