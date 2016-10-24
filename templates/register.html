@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>User Site</title>
+	<link rel="stylesheet" type="text/css" href="/static/css/style.css" />
+</head>
+<body>
+	<h1>WEB 3: Employee Recognition</h1>
+	<p class="login-text">
+		{% if editProfile %}
+			Complete the form to edit your user profile.
+		{% else %}	
+			Complete the form to register as a new user.</p>
+		{% endif %}	
+	<div class="registeration">
+		<form id="register-form" {% if editProfile %}action="/edit_profile" {% else %} action="/register" {% endif %} method="post">
+			<p><span class="field-label">First Name*</span>
+				<input type="text" name="user-first-name" {% if editProfile %} placeholder="{{ user.fname }}" value="{{ user.fname }}" {% endif %}>
+			</p>
+			<p><span class="field-label">Last Name*</span>
+				<input type="text" name="user-last-name" {% if editProfile %} placeholder="{{ user.lname }}" value="{{ user.lname }}" {% endif %}>
+			</p>
+			<p><span class="field-label">Email Address*</span>
+				<input type="email" name="user-email" {% if editProfile %} placeholder="{{ user.email }}" value="{{ user.email }}" {% endif %}>
+			</p>
+			<p><span class="field-label">Password*</span>
+				<input type="password" name="user-password" {% if editProfile %} placeholder="{{ user.passwd }}" value="{{ user.passwd }}" {% endif %}>
+			</p>
+			<p><span class="field-label">Organization*</span>
+				<input type="text" name="user-org" {% if editProfile %} placeholder="{{ awardUser.org }}" value="{{ awardUser.org }}" {% endif %}>
+			</p>
+			<p><span class="field-label">City*</span>
+				<input type="text" name="user-city" {% if editProfile %} placeholder="{{ awardUser.city }}" value="{{ awardUser.city }}" {% endif %}>
+			</p>
+			<input type="submit" {% if editProfile %}value="Update"{% else %}value="Register"{% endif %}>
+		</form>
+		{% if message %}
+			<section class="success-message">
+				{% if editProfile %}
+					<p>{{ message }}</p>
+				{% else %}	
+					<p>Successfully registered. Please click <a href="/login">here</a> to login.</p>
+				{% endif %}	
+			</section>
+		{% endif %}	
+	</div>	
+</body>	
+</html>

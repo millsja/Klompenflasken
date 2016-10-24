@@ -5,7 +5,9 @@ from klompenflasken import app
 import json, random, string
 from db import connect
 from sqlalchemy.orm import sessionmaker
-from db import Base, User, awardCreator, awardType, award
+#from db import Base, User, awardCreator, awardType, award
+from db import Base, User, awardCreator, award
+from datetime import datetime
 
 
 # start database session
@@ -76,6 +78,18 @@ def checkLoggedIn( cookie ):
 		return u
 	return None
 
+
+#louise
+#get the user currently logged into the system 
+#output: return the user object 
+def getLoggedInUser():
+	cookie = request.cookies.get('session-cookie')
+	if cookie is not None:
+		errorPrint("cookie found...")
+		u = checkLoggedIn(cookie)
+		if u is not None:
+			return u
+		return None	
 
 
 # checks a user supplied cookie to see whether it exists
@@ -200,6 +214,127 @@ def login():
 		else:
 			return "Invalid username/password..."
 
+
+#louise
+#register a new award creator user
+@app.route('/register', methods=['GET', 'POST'])	
+def register():
+	message=None
+	if request.method == 'POST':
+		register = request.form
+	
+		#Create a generic user
+		new_user = User(register['user-first-name'], register['user-last-name'], register['user-email'], register['user-password'])
+		session.add(new_user)
+		session.commit()
+
+		#Create an award creator
+		new_award_creator = awardCreator(new_user.id, register['user-org'], register['user-city'])	
+		session.add(new_award_creator)
+		session.commit()
+
+		message = True
+	else: 
+		return render_template('register.html')	
+
+	return render_template('register.html', message=message)
+
+
+#louise
+#edit profile - award creator user must be logged in
+@app.route('/edit_profile', methods=['GET', 'POST']) 
+def edit_profile():
+	message=None
+	editProfile =True
+	
+	if request.method == 'GET':
+		user = getLoggedInUser()
+		awardUser = session.query(awardCreator).filter_by(uid = user.id).first()
+		return render_template('register.html', editProfile=editProfile, user=user, awardUser=awardUser)
+	
+	if request.method == 'POST':
+		user = getLoggedInUser()
+		awardUser = session.query(awardCreator).filter_by(uid = user.id).first()
+		update = request.form
+		user.fname = update['user-first-name']
+		user.lname = update['user-last-name']
+		user.email = update['user-email']
+		user.passwd = update['user-password']
+		awardUser.org = update['user-org']
+		awardUser.city = update['user-city']	
+		session.commit()
+
+		message="User profile updated."
+
+		return render_template('register.html', editProfile=editProfile, user=user, awardUser=awardUser, message=message)
+
+
+#louise
+#create an award - award creator user must be logged in 
+@app.route('/create_award', methods=['GET', 'POST'])	
+def create_award():
+	message=None
+	if request.method == 'POST':
+		create_award = request.form
+		fname = create_award['recipient-first-name']
+		lname = create_award['recipient-last-name']
+		email = create_award['recipient-email']
+		awardType = create_award['award-type']
+		award_date = create_award['award-date']
+		award_time = create_award['award-time']
+
+		#Convert date and time to datetime format
+		date_time = award_date + ' ' + award_time
+		award_dt = datetime.strptime(date_time, '%Y-%m-%d %I:%M')
+
+		#Get Logged in User ID
+		user = getLoggedInUser()
+		if user is not None:
+			creatorID = user.id
+		else:
+			user.id = 0	
+	
+		new_award = award(fname, lname, email, awardType, award_dt, creatorID)
+		session.add(new_award)
+		session.commit()
+
+		message = "New award added to the database."
+	else:
+		return render_template('create_award.html')	
+
+	return render_template('create_award.html', message=message)
+
+
+#louise
+#delete awards - award creator user must be logged
+@app.route('/delete_awards', methods=['GET', 'POST'])	
+def delete_awards(methods=['GET', 'POST']):
+	if request.method == 'GET':
+
+		#Get Logged in User ID
+		user = getLoggedInUser()
+		user_awards = session.query(award).filter_by(creatorID = user.id)
+
+		return render_template('delete_awards.html', user_awards=user_awards)
+
+	if request.method == 'POST':
+		award_form = request.form
+		award_id = award_form['award-id']
+		errorPrint(award_id)
+		award_to_delete = session.query(award).filter_by(id = award_id).first()
+		errorPrint(award_to_delete)
+		session.delete(award_to_delete)
+		session.commit()
+
+		message="Award deleted."
+
+		#Get Logged in User ID
+		user = getLoggedInUser()
+		user_awards = session.query(award).filter_by(creatorID = user.id)
+
+		return render_template('delete_awards.html', user_awards=user_awards, message=message)
+	
+	return render_template('delete_awards.html')
 
 
 # catch all to route bad URIs

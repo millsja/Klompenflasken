@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>User Site</title>
+	<link rel="stylesheet" type="text/css" href="/static/css/style.css" />
+</head>
+<body>
+	<h1>WEB 3: Employee Recognition</h1>
+	<p class="login-text">Complete the form to create a new award.</p>
+	<div>
+		<form id="create-award-form" action="/create_award" method="POST">
+			<p><span class="field-label">Recipient First Name*</span>
+				<input type="text" name="recipient-first-name">
+			</p>
+			<p><span class="field-label">Recipient Last Name*</span>
+				<input type="text" name="recipient-last-name">
+			</p>
+			<p><span class="field-label">Recipient Email Address*</span>
+				<input type="email" name="recipient-email">
+			</p>
+			<p><span class="field-label">Award Type*</span>
+				<select name="award-type">
+					<option value="Employee of the Month">Employee of the Month</option>
+					<option value="Employee of the Quarter">Employee of the Quarter</option>
+					<option value="Employee of the Year">Employee of the Year</option>
+				</select>	
+			</p>
+			<p><span class="field-label">Award Date*</span>
+				<input type="date" name="award-date">
+			</p>
+			<p><span class="field-label">Award Time*</span>
+				<input type="time" name="award-time">
+			</p>
+			<input type="submit" value="Create Award">
+		</form>	
+		{% if message %}
+			<section class="success-message">
+				{{ message }}
+			</section>
+		{% endif %}	
+	</div>	
+</body>	
+</html>		

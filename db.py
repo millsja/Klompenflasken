@@ -18,6 +18,13 @@ class User(Base):
 			nullable=False)
 	admin = Column(Boolean, default=False)
 	cookie = Column(String(64), unique=True)
+
+	#louise
+	def __init__(self, fname, lname, email, passwd):
+		self.fname = fname
+		self.lname = lname
+		self.email = email
+		self.passwd = passwd
 	
 
 # class Cookie(Base):
@@ -35,10 +42,30 @@ class awardCreator(Base):
 	city = Column(String(64), nullable=False)
 	# Column('signature', String(64), nullable=False)
 
-class awardType(Base):
-	__tablename__ = 'awardType'
-	id = Column(Integer, primary_key=True)
-	name = Column(String(128), nullable=False)
+	#louise
+	def __init__(self, uid, org, city):
+		self.uid = uid
+		self.org = org
+		self.city = city
+
+
+#louise - previous tables commented out - consolidated to 1 table per comments
+#class awardType(Base):
+#	__tablename__ = 'awardType'
+#	id = Column(Integer, primary_key=True)
+#	name = Column(String(128), nullable=False)
+
+#class award(Base):
+#	__tablename__ = 'award'
+#	id = Column(Integer, primary_key=True)
+#	fname = Column(String(64), nullable=False)
+#	lname = Column(String(64), nullable=False)
+#	email = Column(String(64), nullable=False)
+#	creatorId = Column(Integer, ForeignKey('awardCreator.uid'))
+#	awardTypeId = Column(Integer, ForeignKey('awardType.id'))
+#	created = Column(DateTime, 
+#			default=datetime.utcnow,
+#			nullable=False)
 
 class award(Base):
 	__tablename__ = 'award'
@@ -46,11 +73,18 @@ class award(Base):
 	fname = Column(String(64), nullable=False)
 	lname = Column(String(64), nullable=False)
 	email = Column(String(64), nullable=False)
-	creatorId = Column(Integer, ForeignKey('awardCreator.uid'))
-	awardTypeId = Column(Integer, ForeignKey('awardType.id'))
-	created = Column(DateTime, 
-			default=datetime.utcnow,
-			nullable=False)
+	awardType = Column(String(64), nullable=False)
+	awardDate = Column(DateTime, nullable=False)
+	creatorID = Column(Integer, ForeignKey('awardCreator.uid'))
+
+	def __init__(self, fname, lname, email, awardType, awardDate, creatorID):
+		self.fname = fname
+		self.lname = lname
+		self.email = email
+		self.awardType = awardType
+		self.awardDate = awardDate
+		self.creatorID = creatorID
+
 
 def connect(user, passwd, db, host='localhost', port=5432):
 	uri = 'postgresql://' + user + ":" + passwd

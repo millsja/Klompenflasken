@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>User Site</title>
+	<link rel="stylesheet" type="text/css" href="/static/css/style.css" />
+</head>
+<body>
+	<h1>WEB 3: Employee Recognition</h1>
+	<p class="login-text">Delete awards previously granted.</p>
+	<table class="delete-awards-table">
+		<tr>
+			<th>First Name</th>
+			<th>Last Name</th>
+			<th>Email Address</th>
+			<th>Award Type</th>
+			<th>Award Date &amp; Time</th>
+		</tr>	
+		{% for award in user_awards %}
+			<tr>
+				<td>{{ award.fname }}</td>
+				<td>{{ award.lname }}</td>
+				<td>{{ award.email }}</td>
+				<td>{{ award.awardType }}</td>
+				<td>{{ award.awardDate }}</td>
+				<td>
+					<form class="delete-awards" action="/delete_awards" method="post">
+						<input type="hidden" name="award-id" value="{{ award.id }}">
+						<input type="submit" value="Delete">
+					</form>	
+				</td>
+			</tr>	
+		{% endfor %}
+	</table>
+	{% if message %}
+		<section class="success-message">
+			{{ message }}
+		</section>
+	{% endif %}		
+</body>	
+</html>		
