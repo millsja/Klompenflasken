@@ -141,6 +141,12 @@ def requiresAdmin(f):
 				errorPrint(u.fname + " has admin privileges")
 				return f(*args, **kwargs)
 
+			# what happens when user doesn't have admin privileges
+			else:
+				message = "Erro: page \"" + request.url + \
+					"\" requires admin privileges"
+				return render_template('error.html', message=message)
+
 		return redirect(url_for('login', next=request.url))
 	
 
