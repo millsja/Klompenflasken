@@ -1,0 +1,21 @@
+body {
+  padding-top: 5rem;
+}
+.starter-template {
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+table {
+  margin: 0 auto;
+  margin-bottom: 15px;
+}
+
+img {
+  margin-bottom: 15px;
+}
+
+td, th {
+  text-align: center;
+  padding-left: 15px;
+  padding-right: 15px;
+}
