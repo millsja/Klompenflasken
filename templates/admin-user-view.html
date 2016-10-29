@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block body_block %}
+        <h1 style="margin-bottom:7px;">{{ user.fname }} 
+		&nbsp; {{ user.lname }}</h1>
+	<table>
+	<tr><th>Date created</th>
+	    {% if creator %}
+	    <th>Organization</th>
+	    <th>City</th>
+	    {% endif %}
+	    <th>Admin</th>
+	    <th>Email</th>
+	    <th>Actions</th></tr>
+	<tr><td>{{ user.created }}</td>
+	    {% if creator %}
+	    <td>{{ creator.org }}</td>
+	    <td>{{ creator.city }}</td>
+	    {% endif %}
+	    <td>{{ user.admin }}</td>
+	    <td>{{ user.email }}</td>
+	    <td><a href="/admin/user/edit/{{ user.id }}">Edit</a>&nbsp;
+		&nbsp;<a href="/admin/user/delete/{{ user.id }}">Delete</a>
+		</td></tr>
+	</table>
+        <br /><br />
+{% endblock %}
+

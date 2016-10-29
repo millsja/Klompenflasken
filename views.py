@@ -9,6 +9,7 @@ from sqlalchemy.orm import sessionmaker
 from db import Base, User, awardCreator, award
 from datetime import datetime
 from functools import wraps
+from page import Link, Page, adminPage, homePage
 
 
 # start database session
@@ -112,7 +113,7 @@ def checkAdmin( cookie ):
 @app.route("/index")
 @app.route("/")
 def index():
-	return render_template('index.html')
+	return render_template('index.html', page=homePage)
 
 
 # the function factory for creating login-required pages
@@ -161,15 +162,31 @@ def requiresAdmin(f):
 @requiresAdmin
 @requiresLogin
 def admin():
-	return render_template('admin.html')
+	return render_template('admin.html', page=adminPage)
 
 
 @app.route('/admin/user')
+@app.route('/admin/user/')
 @requiresAdmin
 @requiresLogin
 def adminUser():
 	users = session.query(User).all()
-	return render_template('admin-user.html', users=users) 
+	return render_template('admin-user.html', users=users, page=adminPage) 
+
+
+@app.route('/admin/user/view/<user_id>')
+@requiresAdmin
+@requiresLogin
+def adminUserView(user_id):
+	user = session.query(User).filter_by( id=user_id ).first()
+	if user:
+		creator = session.query(awardCreator).filter_by( 
+			uid=user_id ).first()
+		return render_template('admin-user-view.html', user=user, 
+					creator=creator, page=adminPage) 
+	else:
+		render_template('error.html', 
+				message="User not found", page=adminPage)
 
 
 @app.route('/admin/user/edit/<user_id>', methods=['GET', 'POST'])
@@ -181,28 +198,132 @@ def adminUserEdit(user_id):
 	# award creator info as well if it's available
 	if request.method == 'GET':
 		user = session.query(User).filter_by( id=user_id ).first()
-		creator = session.query(awardCreator).filter_by( 
-			uid=user_id ).first()
-		return render_template('admin-user-edit.html', user=user, 
-					creator=creator) 
+		if user:
+			creator = session.query(awardCreator).filter_by( 
+				uid=user_id ).first()
+			return render_template('admin-user-edit.html', user=user, 
+						creator=creator, page=adminPage) 
+		else:
+			render_template('error.html', 
+					message="User not found", page=adminPage)
 
 	# process edit POST request
 	elif request.method == 'POST':
 		user = session.query(User).filter_by( id=user_id ).first()
 		creator = session.query(awardCreator).filter_by( 
 			uid=user_id ).first()
-		return render_template('admin-user-edit.html', user=user) 
+		if user:
+			if creator:
+				creator.org = request.form.get('org', None)
+				creator.city = request.form.get('city', None)
+			user.fname = request.form.get('fname', None)
+			user.lname = request.form.get('lname', None)
+			user.email = request.form.get('email', None)
+			user.admin = request.form.get('admin', False)
+
+			# in case of erroneous data, let's error handle
+			try:
+				session.commit()
+			except:
+				message = "Error editing user. \
+					  Please try again."
+				session.rollback()
+				return render_template('error.html', 
+					message = message,
+					page = adminPage) 
+				
+			return redirect('/admin/user/view/' + str(user_id)) 
+
+		else:
+			render_template('error.html', 
+					message="User not found", 
+					page=adminPage)
+
+
+@app.route('/admin/user/create', methods=['GET', 'POST'])
+@requiresAdmin
+@requiresLogin
+def adminUserCreate():
+	# serve the form for create our user...
+	if request.method == 'GET':
+		return render_template('admin-user-create.html', page=adminPage)
+
+	# process edit POST request
+	elif request.method == 'POST':
+		org = request.form.get('org', None)
+		city = request.form.get('city', None)
+		fname = request.form.get('fname', None)
+		lname = request.form.get('lname', None)
+		email = request.form.get('email', None)
+		admin = request.form.get('admin', False)
+		passwd = "default"
+
+		# in case of erroneous data, let's error handle
+		try:
+			newUser = User(fname, lname, email, passwd, admin)
+			session.add(newUser)
+			session.commit()
+		except:
+			message = "Error creating user. \
+				  Please try again."
+			session.rollback()
+			return render_template('error.html', 
+				message = message, page = adminPage) 
 		
+		try:
+			user = session.query(User).filter_by(email=email).first()
+			newCreator = awardCreator(user.id, org, city)
+			session.add(newCreator)
+			session.commit()
+		except:
+			message = "Error creating user. \
+				  Please try again."
+			session.rollback()
+			user = session.query(User).filter_by(email=email).first()
+			session.delete(user)
+			session.commit()
+			return render_template('error.html', 
+				message = message, page = adminPage) 
+			
+		return redirect('/admin/user/view/' + str(user.id)) 
+
 
 
 @app.route('/admin/user/delete/<user_id>')
 @requiresAdmin
 @requiresLogin
 def adminUserDelete(user_id):
-	user = session.query(User).filter_by(_id=ObjectId(user_id)).first()
-	creator = session.query(awardCreator).filter_by(
-		uid=ObjectId(user_id)).first()
-	return render_template('admin-user-edit.html', user=user) 
+	user = session.query(User).filter_by( id=user_id ).first()
+	cookie = request.cookies.get('session-cookie')
+	current = session.query(User).filter_by( cookie=cookie).first()
+	if user and current.id != user.id:
+		# check to see if this user has a row in the
+		# creator table (if so, delete)
+		creator = session.query(awardCreator).filter_by( 
+			uid=user_id ).first()
+		if creator:
+			errorPrint("Deleted creator record" + user_id)
+			session.delete(creator)
+			session.commit()
+
+		# perform deletion and commit	
+		message = "User deleted successfully"
+		session.delete(user)
+		session.commit()
+
+		# redirect user table
+		return redirect('admin/user') 
+
+	elif user and current.id == user.id:
+		# redirect to error page
+		message = "Error: you can't delete yourself!"
+		return render_template('error.html', message=message, 
+					page=adminPage) 
+	else:
+		# redirect to error page
+		message = "Error: couldn't delete user #" + user_id
+		return render_template('error.html', message=message, 
+					page=adminPage) 
 
 
 # deletes the cookie so that a user is logged out

@@ -18,6 +18,12 @@
 			<label for="org">Organization:&nbsp;</label>
 			<input type="text" name="org" value="{{ creator.org }}">
 		{% endif %}
+
+		<div class="floatClear"></div>
+		<label for="admin">Admin&nbsp;</label>
+		<input style="width:15px; padding-top:2px;" 
+		type="checkbox" name="admin"
+		{% if user.admin %} checked="checked" {% endif %}>
 	</div>
 	<div class="formRight">
 		<label for="email">Email:&nbsp;</label>

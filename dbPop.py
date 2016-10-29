@@ -1,6 +1,7 @@
 from datetime import datetime
 from sqlalchemy.orm import sessionmaker
-from db import ( Base, User, awardCreator, awardType, award)
+#from db import ( Base, User, awardCreator, awardType, award)
+from db import ( Base, User, awardCreator, award)
 from db import connect
 
 # make connection / session
@@ -40,9 +41,9 @@ creators = [ {"fname": "Jean",
 		"city": "Montfermeil",
 		"admin": False } ]
 
-awardtypes = [ {"name": "Employee of the month"},
-		{"name": "You're fired"},
-		{"name": "Most convictions"} ]
+# awardtypes = [ {"name": "Employee of the month"},
+# 		{"name": "You're fired"},
+# 		{"name": "Most convictions"} ]
 
 awards = [ {"fname": "Mademoiselle",
 		"lname": "Cosette",
@@ -69,9 +70,10 @@ awards = [ {"fname": "Mademoiselle",
 		"awardName": "The award for most convictions"} ]
 
 # clear our user table to start from scratch
-session.query(User).delete()
 session.query(awardCreator).delete()
+session.query(User).delete()
 session.commit()
+
 
 # insert admins into user table
 for a in admins:
@@ -82,8 +84,11 @@ for a in admins:
 			passwd = a['passwd'],
 			email = a['email'],
 			admin = a['admin'])
+
 	session.add(newAdmin)
+
 session.commit()
+
 
 # add some regular users
 for a in creators:
@@ -105,27 +110,3 @@ for a in creators:
 	session.add(newCreator)
 
 session.commit()
-
-# insert award creators into user table and creator table
-# userTable = meta.tables['user']	
-# creatorTable = meta.tables['awardCreator']
-# for user in creators:
-# 	# insert into user table
-# 	action = userTable.insert().values(
-# 		fname = user['fname'],
-# 		lname = user['lname'],
-# 		email = user['email'],
-# 		passwd = user['passwd']
-# 	)
-# 	result = con.execute(action)
-# 
-# 	# get new user id
-# 	lastAdded = result.inserted_primary_key[0]
-# 
-# 	# insert user into creator table
-# 	action = creatorTable.insert().values(
-# 		uid = lastAdded,
-# 		org = user['org'],
-# 		city = user['city']
-# 	)
-# 	result = con.execute(action)

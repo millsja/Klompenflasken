@@ -2,6 +2,7 @@
 
 {% block body_block %}
         <h1>---User table---</h1>
+        {% if message %}<h2>{{ message }}</h2>{% endif %}
 	<table>
 	<tr><th>First name</th>
 	    <th>Last name</th>
@@ -13,7 +14,8 @@
 		    <td>{{ u.lname }}</td>
 	            <td>{{ u.created }}</td>
 		    <td>{{ u.admin }}</td>
-		    <td><a href="/admin/user/edit/{{ u.id }}">Edit</a>&nbsp;
+		    <td><a href="/admin/user/view/{{ u.id }}">View</a>&nbsp;
+			<a href="/admin/user/edit/{{ u.id }}">Edit</a>&nbsp;
 			&nbsp;<a href="/admin/user/delete/{{ u.id }}">Delete</a>
 			</td></tr>
 	{% endfor %}
