@@ -1,0 +1,36 @@
+div.formLeft {
+	padding-right: 15px;
+	width: 300px;
+	float: left;
+	margin-right: 15px;
+}
+
+div.formRight {
+	width: 300px;
+	float: left;
+}
+
+div.formMain {
+	margin-left:auto;
+	margin-right:auto;
+	text-align: left;
+	overflow: hidden;
+	width: 615px;
+}
+
+.formRight input, .formLeft input {
+	width: 100%;
+}
+
+.formRight label, .formLeft label {
+	margin-bottom: 0px;
+}
+
+.formSubmit {
+	margin-top: 15px;
+}
+
+div.floatClear { 
+	margin-bottom:7px;
+	clear: both; 
+}

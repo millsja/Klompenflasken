@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block body_block %}
+        <h1>---User table---</h1>
+	<table>
+	<tr><th>First name</th>
+	    <th>Last name</th>
+	    <th>Date created</th>
+	    <th>Admin</th>
+	    <th>Actions</th></tr>
+	{% for u in users %}
+		<tr><td>{{ u.fname }}</td>
+		    <td>{{ u.lname }}</td>
+	            <td>{{ u.created }}</td>
+		    <td>{{ u.admin }}</td>
+		    <td><a href="/admin/user/edit/{{ u.id }}">Edit</a>&nbsp;
+			&nbsp;<a href="/admin/user/delete/{{ u.id }}">Delete</a>
+			</td></tr>
+	{% endfor %}
+	</table>
+        <br /><br />
+{% endblock %}
+

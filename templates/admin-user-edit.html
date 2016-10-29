@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block body_block %}
+	<h1>---Edit user---</h1>
+	{% if user %}
+	<form action="/admin/user/edit/{{ user.id }}" method="POST">
+	<div class="formMain">
+	<div class="formLeft">
+		<label for="fname">First name:&nbsp;</label>
+		<input type="text" name="fname" value="{{ user.fname }}">
+		<div class="floatClear"></div>
+
+		<label for="lname">Last name:&nbsp;</label>
+		<input type="text" name="lname" value="{{ user.lname }}">
+
+		{% if creator %}
+			<div class="floatClear"></div>
+			<label for="org">Organization:&nbsp;</label>
+			<input type="text" name="org" value="{{ creator.org }}">
+		{% endif %}
+	</div>
+	<div class="formRight">
+		<label for="email">Email:&nbsp;</label>
+		<input type="text" name="email" value="{{ user.email }}">
+		<div class="floatClear"></div>
+
+		<label for="created">Date created:&nbsp;</label>
+		<input type="text" name="created" value="{{ user.created }}"
+			readonly="readonly" disabled="disabled">
+		<div class="floatClear"></div>
+
+		{% if creator %}
+			<label for="city">City:&nbsp;</label>
+			<input type="text" name="city" value="{{ creator.city }}">
+			<div class="floatClear"></div>
+
+		{% endif %}
+
+		<input class="formSubmit" type="submit" value="Submit changes">
+	</div>
+	</div>
+	</form>
+	{% else %}
+		<h2 style="color:red;">User not found</h2>
+	{% endif %}
+        <br /><br />
+{% endblock %}
+

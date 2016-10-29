@@ -8,6 +8,7 @@ from sqlalchemy.orm import sessionmaker
 #from db import Base, User, awardCreator, awardType, award
 from db import Base, User, awardCreator, award
 from datetime import datetime
+from functools import wraps
 
 
 # start database session
@@ -116,6 +117,7 @@ def index():
 
 # the function factory for creating login-required pages
 def requiresLogin(f):
+	@wraps(f)
 	def decorated_function(*args, **kwargs):
 		cookie = request.cookies.get('session-cookie')
 		if cookie is not None:
@@ -130,10 +132,11 @@ def requiresLogin(f):
 	return decorated_function
 
 
-# the function factory for creating login-required pages
+# the function factory for creating admin-required pages
 def requiresAdmin(f):
+	@wraps(f)
 	def decorated_function(*args, **kwargs):
-		cookie = request.cookies.get('session-cookie')
+		cookie = request.cookies.get('session-cookie', None)
 		if cookie is not None:
 			errorPrint("cookie found...")
 			u = checkAdmin(cookie)
@@ -143,8 +146,8 @@ def requiresAdmin(f):
 
 			# what happens when user doesn't have admin privileges
 			else:
-				message = "Erro: page \"" + request.url + \
-					"\" requires admin privileges"
+				message = "Access denied: " + request.url + \
+					" requires admin privileges"
 				return render_template('error.html', message=message)
 
 		return redirect(url_for('login', next=request.url))
@@ -154,11 +157,52 @@ def requiresAdmin(f):
 
 
 @app.route('/admin')
+@app.route('/admin/')
 @requiresAdmin
 @requiresLogin
 def admin():
 	return render_template('admin.html')
 
+
+@app.route('/admin/user')
+@requiresAdmin
+@requiresLogin
+def adminUser():
+	users = session.query(User).all()
+	return render_template('admin-user.html', users=users) 
+
+
+@app.route('/admin/user/edit/<user_id>', methods=['GET', 'POST'])
+@requiresAdmin
+@requiresLogin
+def adminUserEdit(user_id):
+	# serve the form for editing our user...
+	# don't forget, we need to pass not just user info but
+	# award creator info as well if it's available
+	if request.method == 'GET':
+		user = session.query(User).filter_by( id=user_id ).first()
+		creator = session.query(awardCreator).filter_by( 
+			uid=user_id ).first()
+		return render_template('admin-user-edit.html', user=user, 
+					creator=creator) 
+
+	# process edit POST request
+	elif request.method == 'POST':
+		user = session.query(User).filter_by( id=user_id ).first()
+		creator = session.query(awardCreator).filter_by( 
+			uid=user_id ).first()
+		return render_template('admin-user-edit.html', user=user) 
+		
+
+
+@app.route('/admin/user/delete/<user_id>')
+@requiresAdmin
+@requiresLogin
+def adminUserDelete(user_id):
+	user = session.query(User).filter_by(_id=ObjectId(user_id)).first()
+	creator = session.query(awardCreator).filter_by(
+		uid=ObjectId(user_id)).first()
+	return render_template('admin-user-edit.html', user=user) 
 
 
 # deletes the cookie so that a user is logged out
@@ -169,7 +213,10 @@ def logout():
 		if cookie is not None:
 			delCookie( cookie )
 
-	return redirect("/", 302)
+	response = make_response(redirect("/", 302))
+	response.set_cookie('session-cookie', 
+		value='', expires=0)
+	return response
 
 
 # the login handler
@@ -218,7 +265,8 @@ def login():
 				value=genCookie(email))
 			return response
 		else:
-			return "Invalid username/password..."
+			message = "Error: Invalid username/password"
+			return render_template('error.html', message=message)
 
 
 #louise
