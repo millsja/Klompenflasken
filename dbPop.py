@@ -15,6 +15,11 @@ admins = [ {"fname": "James",
 		"lname": "Mills",
 		"email": "millsja@oregonstate.edu",
 		"passwd": "orange",
+		"admin": True },
+	   {"fname": "Louise",
+		"lname": "McGuire",
+		"email": "mcguirlo@oregonstate.edu",
+		"passwd": "orange",
 		"admin": True } ]
 		
 creators = [ {"fname": "Jean",
