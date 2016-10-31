@@ -1,38 +1,63 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<title>User Site</title>
-	<link rel="stylesheet" type="text/css" href="/static/css/style.css" />
-</head>
-<body>
-	<h1>WEB 3: Employee Recognition</h1>
-	<p class="login-text">
-		{% if editProfile %}
-			Complete the form to edit your user profile.
-		{% else %}	
-			Complete the form to register as a new user.</p>
-		{% endif %}	
+{% extends 'base.html' %}
+
+{% block body_block %}
+	{% if editProfile %}
+		<h1>---Edit Profile---</h1>
+	{% else %}
+		<h1>---Register User---</h1>
+	{% endif %}	
 	<div class="registeration">
-		<form id="register-form" {% if editProfile %}action="/edit_profile" {% else %} action="/register" {% endif %} method="post">
-			<p><span class="field-label">First Name*</span>
-				<input type="text" name="user-first-name" {% if editProfile %} placeholder="{{ user.fname }}" value="{{ user.fname }}" {% endif %}>
-			</p>
-			<p><span class="field-label">Last Name*</span>
-				<input type="text" name="user-last-name" {% if editProfile %} placeholder="{{ user.lname }}" value="{{ user.lname }}" {% endif %}>
-			</p>
-			<p><span class="field-label">Email Address*</span>
-				<input type="email" name="user-email" {% if editProfile %} placeholder="{{ user.email }}" value="{{ user.email }}" {% endif %}>
-			</p>
-			<p><span class="field-label">Password*</span>
-				<input type="password" name="user-password" {% if editProfile %} placeholder="{{ user.passwd }}" value="{{ user.passwd }}" {% endif %}>
-			</p>
-			<p><span class="field-label">Organization*</span>
-				<input type="text" name="user-org" {% if editProfile %} placeholder="{{ awardUser.org }}" value="{{ awardUser.org }}" {% endif %}>
-			</p>
-			<p><span class="field-label">City*</span>
-				<input type="text" name="user-city" {% if editProfile %} placeholder="{{ awardUser.city }}" value="{{ awardUser.city }}" {% endif %}>
-			</p>
-			<input type="submit" {% if editProfile %}value="Update"{% else %}value="Register"{% endif %}>
+		<form id="register-form" {% if editProfile %}action="/awards/edit_profile" {% else %} action="/register" {% endif %} method="post" enctype="multipart/form-data">
+			<div class="formMain">
+				<div class="formLeft">
+					<label for="user-first-name">First Name:&nbsp;</label>
+					<input type="text" name="user-first-name" {% if editProfile %} placeholder="{{ user.fname }}" value="{{ user.fname }}" {% endif %}>
+					<div class="floatClear"></div>
+
+					<label for="user-last-name">Last Name:&nbsp;</label>
+					<input type="text" name="user-last-name" {% if editProfile %} placeholder="{{ user.lname }}" value="{{ user.lname }}" {% endif %}>
+					<div class="floatClear"></div>
+
+					<label for="user-email">Email Address:&nbsp;</label>
+					<input type="email" name="user-email" {% if editProfile %} placeholder="{{ user.email }}" value="{{ user.email }}" {% endif %}>
+					<div class="floatClear"></div>
+
+					{% if editProfile == False %}	
+						<label for="user-password">Password:&nbsp;</label>
+						<input type="password" name="user-password">
+						<div class="floatClear"></div>
+					{% endif %}	
+					
+				</div>
+				<div class="formRight">	
+					{% if editProfile %}	
+						<label for="user-password">Password:&nbsp;</label>
+						<input type="password" name="user-password" placeholder="{{ user.passwd }}" value="{{ user.passwd }}">
+						<div class="floatClear"></div>
+					{% endif %}
+					<label for="user-org">Organization:&nbsp;</label>
+					<input type="text" name="user-org" {% if editProfile %} placeholder="{{ awardUser.org }}" value="{{ awardUser.org }}" {% endif %}>
+					<div class="floatClear"></div>
+
+					<label for="user-city">City:&nbsp;</label>
+					<input type="text" name="user-city" {% if editProfile %} placeholder="{{ awardUser.city }}" value="{{ awardUser.city }}" {% endif %}>
+					<div class="floatClear"></div>
+					
+					{% if editProfile == False %}	
+						<label for="user-signature" class="fileLabel">Signature:&nbsp;</label>
+						<input type="file" name="user-signature">
+					{% endif %}	
+
+					<div class="floatClear"></div>
+					{% if editProfile == False %}
+						<input type="submit" value="Register">
+					{% endif %}	
+				</div>	
+				{% if editProfile %}
+					<div class="floatClear"></div>
+					<input type="submit" value="Update" class="updateSubmit">
+				{% endif %}	
+			</div>	
 		</form>
 		{% if message %}
 			<section class="success-message">
@@ -44,5 +69,4 @@
 			</section>
 		{% endif %}	
 	</div>	
-</body>	
-</html>
+{% endblock %}	

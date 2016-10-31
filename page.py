@@ -25,10 +25,20 @@ adminLinks = [ Link("/admin/user", "Users"),
 adminPage = Page("Admin section", adminLinks)
 
 
-# default admin page info
+# default homepage info
 homeLinks = [ Link("/admin", "Admin"),
-		Link("/create_award", "Create award") ]
+		Link("/awards", "Awards"),
+		Link("/register", "Register") ]
 homePage = Page("Klompendansen", homeLinks)
+
+
+# default awards page info
+awardLinks = [ Link("/awards/create_award", "Create Award"),
+		Link("/awards/delete_awards", "Delete Awards"),
+		Link("/awards/edit_profile", "Edit Profile"),
+		Link("/logout", "Log out") ]
+awardPage = Page("Awards section", awardLinks)
+
 
 if __name__ == "__main__":
 	print "---Pages---:"

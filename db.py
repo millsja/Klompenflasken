@@ -41,13 +41,15 @@ class awardCreator(Base):
 	uid = Column(Integer, ForeignKey('user.id'), primary_key=True)
 	org = Column(String(128), nullable=False)
 	city = Column(String(64), nullable=False)
+	signature = Column(String(128), nullable=False)
 	# Column('signature', String(64), nullable=False)
 
 	#louise
-	def __init__(self, uid, org, city):
+	def __init__(self, uid, org, city, signature):
 		self.uid = uid
 		self.org = org
 		self.city = city
+		self.signature = signature
 
 
 # class awardType(Base):

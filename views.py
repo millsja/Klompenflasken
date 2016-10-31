@@ -1,6 +1,7 @@
 from __future__ import print_function
 import sys
-from flask import render_template, request, redirect, make_response, url_for
+import os
+from flask import render_template, request, redirect, make_response, url_for, send_from_directory
 from klompenflasken import app
 import json, random, string
 from db import connect
@@ -9,7 +10,8 @@ from sqlalchemy.orm import sessionmaker
 from db import Base, User, awardCreator, award
 from datetime import datetime
 from functools import wraps
-from page import Link, Page, adminPage, homePage
+from page import Link, Page, adminPage, homePage, awardPage
+from werkzeug.utils import secure_filename
 
 
 # start database session
@@ -21,6 +23,10 @@ Base.metadata.bind = con
 dbSession = sessionmaker()
 dbSession.bind = con
 session = dbSession()
+
+
+#file types allowed
+ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg']
 
 
 # print to standard error
@@ -81,7 +87,6 @@ def checkLoggedIn( cookie ):
 	return None
 
 
-#louise
 #get the user currently logged into the system 
 #output: return the user object 
 def getLoggedInUser():
@@ -107,6 +112,34 @@ def checkAdmin( cookie ):
 		return u
 	else:
 		return None
+
+
+# checks a user supplied cookie to see whether it exists
+# in our database and is an award creator
+# output: if the cookie matches one in our database, this
+# function returns the corresponding user object. if not,
+# it returns None
+def checkAwardCreator( cookie ):
+	u = session.query(User).filter_by(cookie = cookie).first()
+	errorPrint("Checking admin status...")
+	if u is not None and u.admin == False:
+		errorPrint("Award Creator found...")
+		return u
+	else:
+		return None
+
+
+#define file types allowed for upload
+#allowed file types: png, jpg, and jpeg 
+def allowed_file(filename):
+    return '.' in filename and \
+    	filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
+
+#define the route for uploaded files to be viewed in the browser
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
 # homepage route
@@ -155,6 +188,30 @@ def requiresAdmin(f):
 	
 
 	return decorated_function
+
+
+#the function factory for creating pages for award creators
+def requiresAwardCreator(f):
+	@wraps(f)
+	def decorated_award_function(*args, **kwargs):
+		cookie = request.cookies.get('session-cookie', None)
+		errorPrint(request.url + " request URL")
+		if cookie is not None:
+			errorPrint("cookie found...")
+			u = checkAwardCreator(cookie)
+			if u is not None:
+				errorPrint(u.fname + " has award creation privileges")
+				return f(*args, **kwargs)
+
+			# what happens when user doesn't have admin privileges
+			else:
+				message = "Access denied: " + request.url + \
+					" requires award creation privileges"
+				return render_template('error.html', message=message)
+
+		return redirect(url_for('login', next=request.url))
+	
+	return decorated_award_function	
 
 
 @app.route('/admin')
@@ -390,34 +447,50 @@ def login():
 			return render_template('error.html', message=message)
 
 
-#louise
 #register a new award creator user
 @app.route('/register', methods=['GET', 'POST'])	
 def register():
 	message=None
 	if request.method == 'POST':
 		register = request.form
-	
+
+		#Save the signature file to the uploads folder
+		filename = ''
+		file = request.files['user-signature']
+		if file and allowed_file(file.filename):
+			filename = secure_filename(file.filename)
+        	file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
+        	user_signature = request.url_root + os.path.join(app.config['UPLOAD_FOLDER'], file.filename) 
+ 
 		#Create a generic user
 		new_user = User(register['user-first-name'], register['user-last-name'], register['user-email'], register['user-password'])
 		session.add(new_user)
 		session.commit()
 
 		#Create an award creator
-		new_award_creator = awardCreator(new_user.id, register['user-org'], register['user-city'])	
+		new_award_creator = awardCreator(new_user.id, register['user-org'], register['user-city'], user_signature)	
 		session.add(new_award_creator)
 		session.commit()
 
 		message = True
 	else: 
-		return render_template('register.html')	
+		return render_template('register.html', page=homePage, editProfile=False)	
 
-	return render_template('register.html', message=message)
+	return render_template('register.html', message=message, page=homePage, editProfile=False)
 
 
-#louise
+@app.route('/awards')
+@app.route('/awards/')
+@requiresAwardCreator
+@requiresLogin
+def awards():
+	return render_template('awards.html', page=awardPage)	
+
+
 #edit profile - award creator user must be logged in
-@app.route('/edit_profile', methods=['GET', 'POST']) 
+@app.route('/awards/edit_profile', methods=['GET', 'POST']) 
+@requiresAwardCreator
+@requiresLogin
 def edit_profile():
 	message=None
 	editProfile =True
@@ -425,7 +498,10 @@ def edit_profile():
 	if request.method == 'GET':
 		user = getLoggedInUser()
 		awardUser = session.query(awardCreator).filter_by(uid = user.id).first()
-		return render_template('register.html', editProfile=editProfile, user=user, awardUser=awardUser)
+		sig_url = awardUser.signature
+		errorPrint("The signature: " + awardUser.signature)
+		sig_filename = sig_url.split("uploads/",1)[1]
+		return render_template('register.html', editProfile=editProfile, user=user, awardUser=awardUser, sig_filename=sig_filename, page=awardPage)
 	
 	if request.method == 'POST':
 		user = getLoggedInUser()
@@ -436,17 +512,19 @@ def edit_profile():
 		user.email = update['user-email']
 		user.passwd = update['user-password']
 		awardUser.org = update['user-org']
-		awardUser.city = update['user-city']	
+		awardUser.city = update['user-city']
+
 		session.commit()
 
 		message="User profile updated."
 
-		return render_template('register.html', editProfile=editProfile, user=user, awardUser=awardUser, message=message)
+		return render_template('register.html', editProfile=editProfile, user=user, awardUser=awardUser, message=message, page=awardPage)
 
 
-#louise
 #create an award - award creator user must be logged in 
-@app.route('/create_award', methods=['GET', 'POST'])	
+@app.route('/awards/create_award', methods=['GET', 'POST'])	
+@requiresAwardCreator
+@requiresLogin
 def create_award():
 	message=None
 	if request.method == 'POST':
@@ -475,14 +553,15 @@ def create_award():
 
 		message = "New award added to the database."
 	else:
-		return render_template('create_award.html')	
+		return render_template('create_award.html', page=awardPage)	
 
-	return render_template('create_award.html', message=message)
+	return render_template('create_award.html', message=message, page=awardPage)
 
 
-#louise
 #delete awards - award creator user must be logged
-@app.route('/delete_awards', methods=['GET', 'POST'])	
+@app.route('/awards/delete_awards', methods=['GET', 'POST'])
+@requiresAwardCreator
+@requiresLogin	
 def delete_awards(methods=['GET', 'POST']):
 	if request.method == 'GET':
 
@@ -490,7 +569,7 @@ def delete_awards(methods=['GET', 'POST']):
 		user = getLoggedInUser()
 		user_awards = session.query(award).filter_by(creatorID = user.id)
 
-		return render_template('delete_awards.html', user_awards=user_awards)
+		return render_template('delete_awards.html', user_awards=user_awards, page=awardPage)
 
 	if request.method == 'POST':
 		award_form = request.form
@@ -507,9 +586,9 @@ def delete_awards(methods=['GET', 'POST']):
 		user = getLoggedInUser()
 		user_awards = session.query(award).filter_by(creatorID = user.id)
 
-		return render_template('delete_awards.html', user_awards=user_awards, message=message)
+		return render_template('delete_awards.html', user_awards=user_awards, message=message, page=awardPage)
 	
-	return render_template('delete_awards.html')
+	return render_template('delete_awards.html', page=awardPage)
 
 
 # catch all to route bad URIs

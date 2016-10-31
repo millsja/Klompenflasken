@@ -1,12 +1,7 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<title>User Site</title>
-	<link rel="stylesheet" type="text/css" href="/static/css/style.css" />
-</head>
-<body>
-	<h1>WEB 3: Employee Recognition</h1>
-	<p class="login-text">Delete awards previously granted.</p>
+{% extends 'base.html' %}
+
+{% block body_block %}
+	<h1>---Delete Awards---</h1>
 	<table class="delete-awards-table">
 		<tr>
 			<th>First Name</th>
@@ -23,7 +18,7 @@
 				<td>{{ award.awardType }}</td>
 				<td>{{ award.awardDate }}</td>
 				<td>
-					<form class="delete-awards" action="/delete_awards" method="post">
+					<form class="delete-awards" action="/awards/delete_awards" method="post">
 						<input type="hidden" name="award-id" value="{{ award.id }}">
 						<input type="submit" value="Delete">
 					</form>	
@@ -36,5 +31,4 @@
 			{{ message }}
 		</section>
 	{% endif %}		
-</body>	
-</html>		
+{% endblock %}			
