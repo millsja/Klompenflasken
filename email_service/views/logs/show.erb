@@ -1,0 +1,33 @@
+<h1>
+  Logs for: <%= @id %>
+</h1>
+
+<% unless @errors.empty? %>
+  <h2>
+    Errors related to log: <%= @id %>
+  </h2>
+  <% @errors.each do |error| %>
+    <h4><%= error.received %></h4>
+    <h4><%= error.method   %></h4>
+    <h4><%= error.info     %></h4>
+  <% end %>
+<% else %>
+  <h2>
+    No errors related to log: <%= @id %>
+  </h2>
+<% end %>
+
+<% unless @requests.empty? %>
+  <h2>
+    Requests related to log: <%= @id %>
+  </h2>
+  <% @requests.each do |request| %>
+    <h4><%= request.received %></h4>
+    <h4><%= request.method   %></h4>
+    <h4><%= request.info     %></h4>
+  <% end %>
+<% else %>
+  <h2>
+    No requests related to log: <%= @id %>
+  </h2>
+<% end %>

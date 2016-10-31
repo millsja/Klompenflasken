@@ -1,0 +1,16 @@
+source 'https://rubygems.org'
+ruby '2.2.4'
+
+gem 'sinatra'
+gem 'sinatra-activerecord'
+gem 'activerecord'
+gem 'pg'
+gem 'json'
+gem 'prawn'
+gem 'sendgrid-ruby'
+gem 'rake'
+
+group :development, :test do
+  gem 'rspec'
+  gem 'pry'
+end

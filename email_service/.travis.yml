@@ -1,0 +1,16 @@
+language: ruby
+rvm: 2.2.4
+sudo: required
+deploy:
+  provider: heroku
+  api_key:
+    secure: C1XxRUnKhqqoRz80ZzLHX03l8LDAr2owf9LmO5iGuE0XSXHewx+QpXrrxqqPIUGSrZwaEnxKucevzA9FiipYmWadFtSKDqLBwGzPs2olK2kpuUE+Cs43CEpqcNumHdH4okWEVeRP60JJ8Gjv8xFmq9LNjJI75fV4rv3oL0L4iP1UKoEtvJF+Mt9fR3OaEY9nYuODoKO4Ii1tsVLVnCzsCfn+X0dyYwvlon6fYNu29NuZ62Zu0Wv25ehVUROBBVGtTEgck9mX1ItkFTNVr+hCSNWq5Ux1DEPOrSfaYPPiumRLkHsoD2l2il9hXg8n+JZy3GNgpFZhgTzUIrbl+emAhrAU1/MtSa9S3FjVV5598S0nmlkmTCSUg7Q2tS1L88uNn0CGYR89SpJaP9XM076VysCIMS/RUPjadb7NYed2SFQt+i99HuJR5fOg79tyWbTwL6x8Df8EL8O1glLkwGukCF9bmDYEiFwSqXuRTCwDUgKl5mVcKBKI29g9eXe5/HfGqrSH9wCPs0VJ/Ja1diOAeBhKkjRD1w/obJKscBmBuA/gLr+Bj/m3pVLPivJ7sSHzHVwDr5Ugc24Y0Y1kEsC9dqbazQVydKcuWKdjb/sbomO+D4tKtSMsbMOKn7mvsFMblMEZaRBBTV7HjucsyeEZEk9X9M+yVrHbBQbLLKmBcmY=
+  app: stormy-shelf-63646
+  run:
+    - "rake db:migrate"
+services:
+  - postgresql
+before_script:
+  - cp ./config/database.yml.travis ./config/database.yml
+  - psql -c 'create database travis_ci_test;' -U postgres
+  - bundle exec rake db:migrate
