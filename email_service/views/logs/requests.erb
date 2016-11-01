@@ -1,0 +1,19 @@
+<% if @logs.empty? %>
+  <h1>No requests have been logged yet</h1>
+<% else %>
+  <h1>
+    Logged Requests
+  </h1>
+
+  <% @logs.each do |log| %>
+    <h3>
+      <a href=<%=log.shared_log_id %>>
+        View all related logs
+      </a>
+    </h3>
+    <h3><%= log.received %></h3>
+    <h3><%= log.method %></h3>
+    <h3><%= log.info %></h3>
+    </br>
+  <% end %>
+<% end %>
