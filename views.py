@@ -326,21 +326,24 @@ def adminUserCreate():
 			session.rollback()
 			return render_template('error.html', 
 				message = message, page = adminPage) 
-		
-		try:
-			user = session.query(User).filter_by(email=email).first()
-			newCreator = awardCreator(user.id, org, city)
-			session.add(newCreator)
-			session.commit()
-		except:
-			message = "Error creating user. \
-				  Please try again."
-			session.rollback()
-			user = session.query(User).filter_by(email=email).first()
-			session.delete(user)
-			session.commit()
-			return render_template('error.html', 
-				message = message, page = adminPage) 
+	
+		if admin == False:	
+			try:
+				user = session.query(User).filter_by(
+					email=email).first()
+				newCreator = awardCreator(user.id, org, city)
+				session.add(newCreator)
+				session.commit()
+			except:
+				message = "Error creating user. \
+					  Please try again."
+				session.rollback()
+				user = session.query(User).filter_by(
+					email=email).first()
+				session.delete(user)
+				session.commit()
+				return render_template('error.html', 
+					message = message, page = adminPage) 
 			
 		return redirect('/admin/user/view/' + str(user.id)) 
 
@@ -500,7 +503,14 @@ def edit_profile():
 		awardUser = session.query(awardCreator).filter_by(uid = user.id).first()
 		sig_url = awardUser.signature
 		errorPrint("The signature: " + awardUser.signature)
-		sig_filename = sig_url.split("uploads/",1)[1]
+
+		# [james]: I modified this. it "works" now in the sense
+		# that it doesn't crash. but it probably doesn't function
+		# as intended. original version in comments below:
+		#
+		# sig_filename = sig_url.split("uploads/",1)[1]
+
+		sig_filename = sig_url.split("/uploads/",1)[0]
 		return render_template('register.html', editProfile=editProfile, user=user, awardUser=awardUser, sig_filename=sig_filename, page=awardPage)
 	
 	if request.method == 'POST':
