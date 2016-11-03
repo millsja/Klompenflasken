@@ -624,8 +624,11 @@ def resetPasswd():
 
                 except:
                         session.rollback()
-                        message = sys.exc_info()
+                        # message = sys.exc_info()
                         # message = "Failed to reset password."
+			message = "There was an error trying to reset " + \
+				"your password. Please check your " + \
+				"email address and try again. "
                         return render_template('error.html', message=message)
 
 
