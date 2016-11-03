@@ -12,6 +12,7 @@ from datetime import datetime
 from functools import wraps
 from page import Link, Page, adminPage, homePage, awardPage
 from werkzeug.utils import secure_filename
+import passwd
 
 
 # start database session
@@ -313,7 +314,7 @@ def adminUserCreate():
 		lname = request.form.get('lname', None)
 		email = request.form.get('email', None)
 		admin = request.form.get('admin', False)
-		passwd = "default"
+		passwd = passwd.resetPasswd( fname = fname, email = email )
 
 		# in case of erroneous data, let's error handle
 		try:
@@ -599,6 +600,31 @@ def delete_awards(methods=['GET', 'POST']):
 		return render_template('delete_awards.html', user_awards=user_awards, message=message, page=awardPage)
 	
 	return render_template('delete_awards.html', page=awardPage)
+
+
+@app.route("/reset-password", methods=['GET', 'POST'])
+def resetPasswd():
+        if request.method == "GET":
+                return render_template('reset-password.html')
+
+        if request.method == "POST":
+                try:
+                        email = request.form.get("email")
+                        user = session.query(User).filter_by(email=email).first()
+                        errorPrint("Reseting passwd: " + user.fname +
+                                " | " + user.email)
+                        user.passwd = passwd.resetPasswd( fname = user.fname,
+                                email = user.email )
+                        session.commit()
+                        message = "Password successfully reset. " + \
+                                "Please check your email."
+                        return render_template('success.html', message=message)
+
+                except:
+                        session.rollback()
+                        message = sys.exc_info()
+                        # message = "Failed to reset password."
+                        return render_template('error.html', message=message)
 
 
 # catch all to route bad URIs
