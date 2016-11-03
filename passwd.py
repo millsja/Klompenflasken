@@ -37,7 +37,7 @@ def sendPass( fname, email, passwd ):
 	content['from'] = "team.klompen@gmail.com"
 	content['to'] = email
 	content['body'] = "Dear " + fname + ",\n\n" + \
-			  "Your password has been reset: " + passwd + "\n\n" + \
+			  "Your new password is: " + passwd + "\n\n" + \
 			  "Kind regards,\n\nThe Klompendansen Team"
 
 	# set up gmail connection

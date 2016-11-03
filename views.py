@@ -12,7 +12,7 @@ from datetime import datetime
 from functools import wraps
 from page import Link, Page, adminPage, homePage, awardPage
 from werkzeug.utils import secure_filename
-import passwd
+import passwd as passwdModule
 
 
 # start database session
@@ -314,7 +314,7 @@ def adminUserCreate():
 		lname = request.form.get('lname', None)
 		email = request.form.get('email', None)
 		admin = request.form.get('admin', False)
-		passwd = passwd.resetPasswd( fname = fname, email = email )
+		passwd = passwdModule.resetPasswd( fname = fname, email = email )
 
 		# in case of erroneous data, let's error handle
 		try:
@@ -346,6 +346,7 @@ def adminUserCreate():
 				return render_template('error.html', 
 					message = message, page = adminPage) 
 			
+		user = session.query(User).filter_by(email=email).first()
 		return redirect('/admin/user/view/' + str(user.id)) 
 
 
@@ -613,7 +614,8 @@ def resetPasswd():
                         user = session.query(User).filter_by(email=email).first()
                         errorPrint("Reseting passwd: " + user.fname +
                                 " | " + user.email)
-                        user.passwd = passwd.resetPasswd( fname = user.fname,
+                        user.passwd = passwdModule.resetPasswd( 
+				fname = user.fname,
                                 email = user.email )
                         session.commit()
                         message = "Password successfully reset. " + \
