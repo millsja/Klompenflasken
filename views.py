@@ -10,7 +10,7 @@ from sqlalchemy.orm import sessionmaker
 from db import Base, User, awardCreator, award
 from datetime import datetime
 from functools import wraps
-from page import Link, Page, adminPage, homePage, awardPage
+from page import Link, Page, adminPage, homePage, awardPage, queryPage
 from werkzeug.utils import secure_filename
 import passwd as passwdModule
 
@@ -221,6 +221,31 @@ def requiresAwardCreator(f):
 @requiresLogin
 def admin():
 	return render_template('admin.html', page=adminPage)
+
+
+@app.route('/admin/analytics')
+@requiresAdmin
+@requiresLogin
+def analyticsMain():
+	return render_template('analyticsHome.html', page=queryPage)
+
+
+@app.route('/admin/analytics/creator')
+@requiresAdmin
+@requiresLogin
+def queryCreator():
+	return redirect('/admin/analytics/creator/run')
+
+
+@app.route('/admin/analytics/<queryType>/run')
+@requiresAdmin
+@requiresLogin
+def queryRun(queryType):
+	if queryType == "creator":
+		return render_template('queryCreator.html', page=queryPage)
+	else:
+		render_template('error.html', 
+				message="Error: No such report", page=queryPage)
 
 
 @app.route('/admin/user')

@@ -25,6 +25,10 @@ adminLinks = [ Link("/admin/user", "Users"),
 adminPage = Page("Admin section", adminLinks)
 
 
+# default query page info
+queryPage = Page("Analytics", adminLinks)
+
+
 # default homepage info
 homeLinks = [ Link("/admin", "Admin"),
 		Link("/awards", "Awards"),
