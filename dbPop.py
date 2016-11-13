@@ -28,6 +28,7 @@ creators = [ {"fname": "Jean",
 		"passwd": "24601",
 		"org": "Nike Manufacturing, Inc.",
 		"city": "St-Denis",
+		"state": "PA",
 		"admin": False },
 
 		{"fname": "Inspector",
@@ -36,6 +37,7 @@ creators = [ {"fname": "Jean",
 		"passwd": "stars",
 		"org": "City of Paris",
 		"city": "Paris",
+		"state": "NY",
 		"admin": False },
 
 		{"fname": "Bernard",
@@ -44,6 +46,7 @@ creators = [ {"fname": "Jean",
 		"passwd": "raiseaglass",
 		"org": "Sargeant de Waterloo",
 		"city": "Montfermeil",
+		"state": "MA",
 		"admin": False } ]
 
 # awardtypes = [ {"name": "Employee of the month"},
@@ -106,12 +109,14 @@ for a in creators:
 			email = a['email'],
 			admin = a['admin'])
 	session.add(newUser)
+	session.commit()
 
 	# create the award creator entry
 	u = session.query(User).filter_by( email = a['email'] ).first()
 	newCreator = awardCreator(uid = u.id,
 				city = a['city'],
-				org = a['org'])	
+				state = a['state'],
+				org = a['org'],
+				signature = "blank" )	
 	session.add(newCreator)
-
-session.commit()
+	session.commit()

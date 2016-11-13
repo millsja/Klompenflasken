@@ -6,6 +6,7 @@ from klompenflasken import app
 import json, random, string
 from db import connect
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import func
 #from db import Base, User, awardCreator, awardType, award
 from db import Base, User, awardCreator, award
 from datetime import datetime
@@ -224,28 +225,149 @@ def admin():
 
 
 @app.route('/admin/analytics')
+@app.route('/admin/analytics/')
 @requiresAdmin
 @requiresLogin
 def analyticsMain():
 	return render_template('analyticsHome.html', page=queryPage)
 
 
-@app.route('/admin/analytics/creator')
-@requiresAdmin
-@requiresLogin
-def queryCreator():
-	return redirect('/admin/analytics/creator/run')
+def getAwardCountByCreator():
+	awards = []
+	query = session.query(awardCreator, User, 
+				func.count(award.id).label('count')).\
+		join(User).\
+		outerjoin(award).\
+		group_by(awardCreator.uid, User.id).\
+		order_by('count DESC')
+	for q in query:
+		awards.append( {"fname": q[1].fname,
+			"lname": q[1].lname,
+			"org": q[0].org,
+			"count": str(int(q[2])) } )
+	return awards
 
 
-@app.route('/admin/analytics/<queryType>/run')
+
+def getAwardCountByCity():
+	cities = []
+	query = session.query(awardCreator.city, awardCreator.state,
+				func.count(award.id).label('count')).\
+		outerjoin(award).\
+		group_by(awardCreator.city, awardCreator.state).\
+		order_by('count DESC')
+	for q in query:
+		cities.append( {"city": q[0],
+			"state": q[1],
+			"count": str(int(q[2])) } )
+	return cities 
+
+
+def getAwardCountByState():
+	states = []
+	query = session.query(awardCreator.state, 
+		func.count(award.id).label('count')).\
+		outerjoin(award).\
+		group_by(awardCreator.state).\
+		order_by('count DESC')
+	for q in query:
+		states.append( {"state": q[0],
+			"count": str(int(q[1])) } )
+	return states
+
+
+@app.route('/queries/<filename>')
+def query_file(filename):
+    return send_from_directory(app.config['QUERY_FOLDER'], filename)
+
+def getCSV( data ):
+	# pull some unsavory characters out of our urls
+	def cleanURL( url ):
+		url = url.replace(" ", "_")
+		url = url.replace(":", "-")
+		return url
+
+	# write csv to file
+	filename = "queries/" + str(datetime.now())
+	filename = cleanURL( filename )
+	filename = filename + ".query.csv"
+	errorPrint("new query at: " + filename)
+	fd = open(filename, 'w')
+
+
+	# add the headers
+	line = ""
+	keys = data[0].keys()
+	for q in range( len(keys) ):
+		if q == 0:
+			line = line + keys[q]
+		else:
+			line = line + "," + keys[q]
+	fd.write(line)
+	fd.write("\n")
+
+	# add data
+	for e in data:
+		line = ""
+		for q in range( len(keys) ):
+			if q == 0:
+				line = line + e[keys[q]]
+			else:
+				line = line + "," + e[keys[q]]
+		fd.write(line)
+		fd.write("\n")
+
+	# close up shop and go home
+	fd.close()
+	return "/" + filename
+
+
+@app.route('/admin/analytics/agg/<queryType>')
+@app.route('/admin/analytics/agg/<queryType>/')
 @requiresAdmin
 @requiresLogin
 def queryRun(queryType):
 	if queryType == "creator":
-		return render_template('queryCreator.html', page=queryPage)
+		awards = getAwardCountByCreator()
+		csv = getCSV( awards )
+		return render_template('queryCreator.html', 
+					page=queryPage, 
+					awards=awards,
+					csv=csv)
+	elif queryType == "city":
+		cities = getAwardCountByCity()
+		csv = getCSV( cities )
+		return render_template('queryCity.html', 
+					page=queryPage, 
+					cities=cities,
+					csv=csv)
+	elif queryType == "state":
+		states = getAwardCountByState()
+		csv = getCSV( states )
+		return render_template('queryState.html', 
+					page=queryPage, 
+					states=states,
+					csv=csv)
 	else:
 		render_template('error.html', 
 				message="Error: No such report", page=queryPage)
+
+
+# @app.route('/admin/analytics/time/<queryType>')
+# @app.route('/admin/analytics/time/<queryType>/')
+# @requiresAdmin
+# @requiresLogin
+# def queryRun(queryType):
+# 	if queryType == "creator":
+# 		awards = getAwardCountByCreator()
+# 		csv = getCSV( awards )
+# 		return render_template('queryCreator.html', 
+# 					page=queryPage, 
+# 					awards=awards,
+# 					csv=csv)
+# 	else:
+# 		render_template('error.html', 
+# 				message="Error: No such report", page=queryPage)
 
 
 @app.route('/admin/user')

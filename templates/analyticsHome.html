@@ -1,8 +1,17 @@
 {% extends 'base.html' %}
 
 {% block body_block %}
-        <h1>---Generate reports---</h1>
-	<p>1. <a href="/admin/analytics/creator">By-creator report</a></p>
+        <h1 style="margin-bottom:18px;">Generate reports<h1>
+	<h3>Aggregate data</h3>
+	<ul style="list-style:none;padding-left:0px;">
+	    <li><a href="/admin/analytics/agg/creator">By-creator report</a></li>
+	    <li><a href="/admin/analytics/agg/city">By-city report</a></li>
+	    <li><a href="/admin/analytics/agg/state">By-state report</a></li>
+	</ul>
+	<h3>Over-time data</h3>
+	<ul style="list-style:none; padding-left:0px;">
+	    <li><a href="/admin/analytics/time/creator">By-creator report</a></li>
+	</ul>
         <br /><br />
 {% endblock %}
 

@@ -41,6 +41,7 @@ class awardCreator(Base):
 	uid = Column(Integer, ForeignKey('user.id'), primary_key=True)
 	org = Column(String(128), nullable=False)
 	city = Column(String(64), nullable=False)
+	state = Column(String(64), nullable=False)
 	signature = Column(String(128), nullable=False)
 	# Column('signature', String(64), nullable=False)
 
@@ -83,7 +84,7 @@ class award(Base):
 		self.fname = fname
 		self.lname = lname
 		self.email = email
-		self.awardType = awardType
+		self.awardType = awardType 
 		self.awardDate = awardDate
 		self.creatorID = creatorID
 
