@@ -10,49 +10,71 @@
 		<form id="register-form" {% if editProfile %}action="/awards/edit_profile" {% else %} action="/register" {% endif %} method="post" enctype="multipart/form-data">
 			<div class="formMain">
 				<div class="formLeft">
-					<label for="user-first-name">First Name:&nbsp;</label>
-					<input type="text" name="user-first-name" {% if editProfile %} placeholder="{{ user.fname }}" value="{{ user.fname }}" {% endif %}>
+					<label for="user-first-name">First Name*:&nbsp;</label>
+					
+					<!--First Name-->
+					<input type="text" name="user-first-name" 
+						{% if error and fieldValues.firstName %} value="{{ fieldValues.firstName }}"{% endif %}
+						{% if editProfile %} value="{{ user.fname }}" {% endif %}>
 					<div class="floatClear"></div>
 
-					<label for="user-last-name">Last Name:&nbsp;</label>
-					<input type="text" name="user-last-name" {% if editProfile %} placeholder="{{ user.lname }}" value="{{ user.lname }}" {% endif %}>
+					<!--Last Name-->
+					<label for="user-last-name">Last Name*:&nbsp;</label>
+					<input type="text" name="user-last-name" 
+						{% if error and fieldValues.lastName %} value="{{ fieldValues.lastName }}"{% endif %}
+						{% if editProfile %} value="{{ user.lname }}" {% endif %}>
 					<div class="floatClear"></div>
 
-					<label for="user-email">Email Address:&nbsp;</label>
-					<input type="email" name="user-email" {% if editProfile %} placeholder="{{ user.email }}" value="{{ user.email }}" {% endif %}>
+					<!--Email Address-->
+					<label for="user-email">Email Address*:&nbsp;</label>
+					<input type="email" name="user-email" 
+						{% if error and fieldValues.email %} value="{{ fieldValues.email }}"{% endif %}
+						{% if editProfile %} value="{{ user.email }}" {% endif %}>
 					<div class="floatClear"></div>
 
+					<!--Password-->
 					{% if editProfile == False %}	
-						<label for="user-password">Password:&nbsp;</label>
-						<input type="password" name="user-password">
+						<label for="user-password">Password*:&nbsp;</label>
+						<input type="password" name="user-password" {% if error and fieldValues.password %} value="{{ fieldValues.password }}"{% endif %}>
 						<div class="floatClear"></div>
 					{% endif %}	
 					
 				</div>
 				<div class="formRight">	
-					{% if editProfile %}	
-						<label for="user-password">Password:&nbsp;</label>
-						<input type="password" name="user-password" placeholder="{{ user.passwd }}" value="{{ user.passwd }}">
-						<div class="floatClear"></div>
-					{% endif %}
-					<label for="user-org">Organization:&nbsp;</label>
-					<input type="text" name="user-org" {% if editProfile %} placeholder="{{ awardUser.org }}" value="{{ awardUser.org }}" {% endif %}>
+					
+					<!--Organization-->
+					<label for="user-org">Organization*:&nbsp;</label>
+					<input type="text" name="user-org" 
+						{% if error and fieldValues.org %} value="{{ fieldValues.org }}"{% endif %}
+						{% if editProfile %} value="{{ awardUser.org }}" {% endif %}>
 					<div class="floatClear"></div>
 
-					<label for="user-city">City:&nbsp;</label>
-					<input type="text" name="user-city" {% if editProfile %} placeholder="{{ awardUser.city }}" value="{{ awardUser.city }}" {% endif %}>
+					<!--City-->
+					<label for="user-city">City*:&nbsp;</label>
+					<input type="text" name="user-city" 
+						{% if error and fieldValues.city %} value="{{ fieldValues.city }}"{% endif %}
+						{% if editProfile %} value="{{ awardUser.city }}" {% endif %}>
+					<div class="floatClear"></div>
+
+					<!--State-->
+					<label for="user-state">State*:&nbsp;</label>
+					<input type="text" name="user-state" maxlength="2"
+						{% if error and fieldValues.state %} value="{{ fieldValues.state }}"{% endif %}
+						{% if editProfile %} value="{{ awardUser.state }}" {% endif %}>
 					<div class="floatClear"></div>
 					
+					<!--Image File-->
 					{% if editProfile == False %}	
 						<label for="user-signature" class="fileLabel">Signature:&nbsp;</label>
-						<input type="file" name="user-signature">
-					{% endif %}	
-
-					<div class="floatClear"></div>
-					{% if editProfile == False %}
-						<input type="submit" value="Register">
+						<input type="file" name="user-signature" {% if error and fieldValues.sig %} value="{{ fieldValues.sig }}"{% endif %}>
 					{% endif %}	
 				</div>	
+
+				<div class="floatClear"></div>
+				{% if editProfile == False %}
+					<input type="submit" value="Register">
+				{% endif %}	
+
 				{% if editProfile %}
 					<div class="floatClear"></div>
 					<input type="submit" value="Update" class="updateSubmit">
@@ -66,7 +88,19 @@
 				{% else %}	
 					<p>Successfully registered. Please click <a href="/login">here</a> to login.</p>
 				{% endif %}	
-			</section>
+			</section>	
+		{% endif %}	
+		{% if error %}
+			<section>
+				<p class="error-message">The form was not submitted. Please correct the following errors and submit again:</p>
+				{% if error_list %}
+					<ul class="error-list">
+					{% for err in error_list %}
+						<li>{{ err }}</li>
+					{% endfor %}	
+					</ul>	
+				{% endif %}
+			</section>	
 		{% endif %}	
 	</div>	
 {% endblock %}	

@@ -50,11 +50,19 @@ div.formMain {
 	width: 40%;
 }
 
-.success-message {
-	background: green;
+.success-message,
+.error-message {
 	color: #FFFFFF;
 	margin-top: 20px;
 	padding: 10px 0;
+}
+
+.success-message {
+	background: green;
+}
+
+.error-message {
+	background: red;
 }
 
 .success-message a {
@@ -62,8 +70,17 @@ div.formMain {
 	text-decoration: underline;
 }
 
-.success-message p {
+.success-message p,
+.error-message p {
 	margin-bottom: 0px;
+}
+
+.error-list {
+	list-style: none
+}
+
+.error-list li {
+	color: red;
 }
 
 div.floatClear { 

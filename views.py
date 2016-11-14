@@ -14,6 +14,7 @@ from functools import wraps
 from page import Link, Page, adminPage, homePage, awardPage, queryPage
 from werkzeug.utils import secure_filename
 import passwd as passwdModule
+import re
 
 
 # start database session
@@ -603,32 +604,113 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])	
 def register():
 	message=None
-	if request.method == 'POST':
-		register = request.form
+	error=False
+	error_list=[]
+	fieldValues = {}
+	if request.method == 'GET':
+		return render_template('register.html', page=homePage, editProfile=False)	
 
+	elif request.method == 'POST':
+		register = request.form
+		first_name = register['user-first-name']
+		last_name = register['user-last-name']
+		email = register['user-email']
+		password = register['user-password']
+		organization = register['user-org']
+		city = register['user-city']
+		state = register['user-state']
+
+        #Input Validation	
+        #First Name - Field is completed
+        if not first_name:
+        	error = True
+        	error_list.append("First name is a required field.")
+        else:
+        	fieldValues['firstName'] = first_name		
+
+        #Last Name - Field is completed
+        if not last_name:
+        	error = True
+        	error_list.append("Last name is a required field.")	
+        else:
+        	fieldValues['lastName'] = last_name	
+
+        #Email - Field is completed, field is valid, field is not duplicate
+        if not email:
+        	error = True
+        	error_list.append("Email is a required field.")	
+        else:
+        	if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+        		error = True
+        		error_list.append("Please enter a valid email address.")
+        	elif re.match(r"[^@]+@[^@]+\.[^@]+", email):
+        		u = session.query(User).filter_by(email = email).first()
+        		if u != None:
+        			error = True
+        			error_list.append("Email address already registered. Please enter a new email address or login.")	
+		        else:
+		        	fieldValues['email'] = email	
+
+        #Password - Field is completed
+        if not password:
+        	error = True
+        	error_list.append("Password is a required field.")	
+        else: 
+        	fieldValues['password'] = organization	
+
+        #Organization - Field is completed
+        if not organization:
+        	error = True
+        	error_list.append("Organization is a required field.")	
+        else: 
+        	fieldValues['org'] = organization	
+
+        #City - Field is completed
+    	if not city:
+    		error = True
+        	error_list.append("City is a required field.")	
+        else: 
+        	fieldValues['city'] = city
+
+    	#State - Field is completed and field is valid
+    	if not state:
+    		error = True
+    		error_list.append("State is a required field.")
+    	elif state:
+    		if not state.isalpha() or len(state) != 2:
+    			error = True
+    			error_list.append("Please enter a valid state code with 2 letters.")
+	    	else:
+	    		fieldValues['state'] = state
+
+		#Image file - field is compelted and file type is valid
 		#Save the signature file to the uploads folder
 		filename = ''
+		file_error = False
 		file = request.files['user-signature']
-		if file and allowed_file(file.filename):
+		if not file or not allowed_file(file.filename):
+			error = True
+			file_error = True
+			error_list.append("Please upload a valid Signature file (jpg, jpeg, png).")
+		elif not file_error:	
 			filename = secure_filename(file.filename)
         	file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
         	user_signature = request.url_root + os.path.join(app.config['UPLOAD_FOLDER'], file.filename) 
- 
-		#Create a generic user
-		new_user = User(register['user-first-name'], register['user-last-name'], register['user-email'], register['user-password'])
-		session.add(new_user)
-		session.commit()
+     	
+    	if not error:		 
+			#Create a generic user
+			new_user = User(first_name, last_name, email, password)
+			session.add(new_user)
+			session.commit()
 
-		#Create an award creator
-		new_award_creator = awardCreator(new_user.id, register['user-org'], register['user-city'], user_signature)	
-		session.add(new_award_creator)
-		session.commit()
+			#Create an award creator
+			new_award_creator = awardCreator(new_user.id, organization, city, state, user_signature)	
+			session.add(new_award_creator)
+			session.commit()
 
-		message = True
-	else: 
-		return render_template('register.html', page=homePage, editProfile=False)	
+			message = True
 
-	return render_template('register.html', message=message, page=homePage, editProfile=False)
+	return render_template('register.html', message=message, page=homePage, editProfile=False, error=error, error_list=error_list, fieldValues=fieldValues)
 
 
 @app.route('/awards')
@@ -686,6 +768,12 @@ def edit_profile():
 @requiresLogin
 def create_award():
 	message=None
+	error=False
+	error_list=[]
+	fieldValues = {}
+	if request.method == 'GET':
+		return render_template('create_award.html', page=awardPage)	
+
 	if request.method == 'POST':
 		create_award = request.form
 		fname = create_award['recipient-first-name']
@@ -695,26 +783,61 @@ def create_award():
 		award_date = create_award['award-date']
 		award_time = create_award['award-time']
 
-		#Convert date and time to datetime format
-		date_time = award_date + ' ' + award_time
-		award_dt = datetime.strptime(date_time, '%Y-%m-%d %I:%M')
+		#Input Validation	
+        #First Name - Field is completed
+        if not fname:
+        	error = True
+        	error_list.append("Recipient first name is a required field.")
+        else:
+        	fieldValues['firstName'] = fname		
 
-		#Get Logged in User ID
-		user = getLoggedInUser()
-		if user is not None:
-			creatorID = user.id
+        #Last Name - Field is completed
+        if not lname:
+        	error = True
+        	error_list.append("Recipient last name is a required field.")	
+        else:
+        	fieldValues['lastName'] = lname	
+
+        #Email - Field is completed, field is valid, field is not duplicate
+        if not email:
+        	error = True
+        	error_list.append("Recipient email address is a required field.")	
+        else:
+        	if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+        		error = True
+        		error_list.append("Please enter a valid email address.")   	
+     		else:
+		        fieldValues['email'] = email
+
+		errorPrint("here")        
+
+		#Award Date
+		if not award_date:
+			error = True
+			error_list.append("Award date is a required field.")
 		else:
-			user.id = 0	
-	
-		new_award = award(fname, lname, email, awardType, award_dt, creatorID)
-		session.add(new_award)
-		session.commit()
+			fieldValues['awardDate'] = award_date
 
-		message = "New award added to the database."
-	else:
-		return render_template('create_award.html', page=awardPage)	
 
-	return render_template('create_award.html', message=message, page=awardPage)
+		if not error:        
+			#Convert date and time to datetime format
+			date_time = award_date + ' ' + award_time
+			award_dt = datetime.strptime(date_time, '%Y-%m-%d %I:%M')
+
+			#Get Logged in User ID
+			user = getLoggedInUser()
+			if user is not None:
+				creatorID = user.id
+			else:
+				user.id = 0	
+		
+			new_award = award(fname, lname, email, awardType, award_dt, creatorID)
+			session.add(new_award)
+			session.commit()
+
+			message = "New award added to the database."
+
+	return render_template('create_award.html', message=message, page=awardPage, error=error, error_list=error_list, fieldValues=fieldValues)
 
 
 #delete awards - award creator user must be logged

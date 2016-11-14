@@ -7,15 +7,15 @@
 			<div class="formMain"  id="awardsForm">
 				<div class="formLeft">
 					<label for="recipient-first-name">Recipient First Name:&nbsp;</label>
-					<input type="text" name="recipient-first-name">
+					<input type="text" name="recipient-first-name" {% if error and fieldValues.firstName %} value="{{ fieldValues.firstName }}"{% endif %}>
 					<div class="floatClear"></div>
 					
 					<label for="recipient-last-name">Recipient Last Name:&nbsp;</label>
-					<input type="text" name="recipient-last-name">
+					<input type="text" name="recipient-last-name" {% if error and fieldValues.lastName %} value="{{ fieldValues.lastName }}"{% endif %}>
 					<div class="floatClear"></div>
 
 					<label for="recipient-email">Recipient Email Address:&nbsp;</label>
-					<input type="email" name="recipient-email">
+					<input type="email" name="recipient-email" {% if error and fieldValues.email %} value="{{ fieldValues.email }}"{% endif %}>
 					<div class="floatClear"></div>
 				</div>
 				<div class="formRight">
@@ -28,7 +28,7 @@
 					<div class="floatClear"></div>
 
 					<label for="award-date">Award Date:&nbsp;</label>
-					<input type="date" name="award-date">
+					<input type="date" name="award-date" {% if error and fieldValues.awardDate %} placeholder="Test" value="{{ fieldValues.awardDate }}"{% endif %}>
 					<div class="floatClear"></div>
 
 					<label for="award-time">Award Time:&nbsp;</label>
@@ -43,6 +43,18 @@
 			<section class="success-message">
 				{{ message }}
 			</section>
+		{% endif %}	
+		{% if error %}
+			<section>
+				<p class="error-message">The form was not submitted. Please correct the following errors and submit again:</p>
+				{% if error_list %}
+					<ul class="error-list">
+					{% for err in error_list %}
+						<li>{{ err }}</li>
+					{% endfor %}	
+					</ul>	
+				{% endif %}
+			</section>	
 		{% endif %}	
 	</div>	
 {% endblock %}		

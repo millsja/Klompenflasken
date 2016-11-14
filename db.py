@@ -19,7 +19,6 @@ class User(Base):
 	admin = Column(Boolean, default=False)
 	cookie = Column(String(64), unique=True)
 
-	#louise
 	def __init__(self, fname, lname, email, passwd, admin=False):
 		self.fname = fname
 		self.lname = lname
@@ -45,11 +44,11 @@ class awardCreator(Base):
 	signature = Column(String(128), nullable=False)
 	# Column('signature', String(64), nullable=False)
 
-	#louise
 	def __init__(self, uid, org, city, signature):
 		self.uid = uid
 		self.org = org
 		self.city = city
+		self.state = state
 		self.signature = signature
 
 
