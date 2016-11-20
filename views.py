@@ -13,6 +13,8 @@ from datetime import datetime
 from functools import wraps
 from page import Link, Page, adminPage, homePage, awardPage, queryPage
 from werkzeug.utils import secure_filename
+import requests
+import base64
 import passwd as passwdModule
 import re
 
@@ -767,77 +769,102 @@ def edit_profile():
 @requiresAwardCreator
 @requiresLogin
 def create_award():
-	message=None
-	error=False
-	error_list=[]
-	fieldValues = {}
-	if request.method == 'GET':
-		return render_template('create_award.html', page=awardPage)	
+    message=None
+    error=False
+    error_list=[]
+    fieldValues = {}
+    if request.method == 'GET':
+        return render_template('create_award.html', page=awardPage)	
 
-	if request.method == 'POST':
-		create_award = request.form
-		fname = create_award['recipient-first-name']
-		lname = create_award['recipient-last-name']
-		email = create_award['recipient-email']
-		awardType = create_award['award-type']
-		award_date = create_award['award-date']
-		award_time = create_award['award-time']
+    if request.method == 'POST':
+        create_award = request.form
+        fname = create_award['recipient-first-name']
+        lname = create_award['recipient-last-name']
+        email = create_award['recipient-email']
+        award_type = create_award['award-type']
+        award_date = create_award['award-date']
+        award_time = create_award['award-time']
 
-		#Input Validation	
+        #Input Validation	
         #First Name - Field is completed
         if not fname:
-        	error = True
-        	error_list.append("Recipient first name is a required field.")
+            error = True
+            error_list.append("Recipient first name is a required field.")
         else:
-        	fieldValues['firstName'] = fname		
+            fieldValues['firstName'] = fname		
 
         #Last Name - Field is completed
         if not lname:
-        	error = True
-        	error_list.append("Recipient last name is a required field.")	
+            error = True
+            error_list.append("Recipient last name is a required field.")	
         else:
-        	fieldValues['lastName'] = lname	
+            fieldValues['lastName'] = lname	
 
         #Email - Field is completed, field is valid, field is not duplicate
         if not email:
-        	error = True
-        	error_list.append("Recipient email address is a required field.")	
+            error = True
+            error_list.append("Recipient email address is a required field.")	
         else:
-        	if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-        		error = True
-        		error_list.append("Please enter a valid email address.")   	
-     		else:
-		        fieldValues['email'] = email
+            if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+                error = True
+                error_list.append("Please enter a valid email address.")
+            else:
+                fieldValues['email'] = email
 
-		errorPrint("here")        
-
-		#Award Date
-		if not award_date:
-			error = True
-			error_list.append("Award date is a required field.")
-		else:
-			fieldValues['awardDate'] = award_date
+        #Award Date
+        if not award_date:
+            error = True
+            error_list.append("Award date is a required field.")
+        else:
+            fieldValues['awardDate'] = award_date
 
 
-		if not error:        
-			#Convert date and time to datetime format
-			date_time = award_date + ' ' + award_time
-			award_dt = datetime.strptime(date_time, '%Y-%m-%d %I:%M')
+        if not error:
+            #Convert date and time to datetime format
+            date_time = award_date + ' ' + award_time
+            award_dt = datetime.strptime(date_time, '%Y-%m-%d %I:%M')
 
-			#Get Logged in User ID
-			user = getLoggedInUser()
-			if user is not None:
-				creatorID = user.id
-			else:
-				user.id = 0	
-		
-			new_award = award(fname, lname, email, awardType, award_dt, creatorID)
-			session.add(new_award)
-			session.commit()
+            #Get Logged in User ID
+            user = getLoggedInUser()
+            if user is not None:
+                creatorID = user.id
+            else:
+                user.id = 0
 
-			message = "New award added to the database."
+            new_award = award(fname, lname, email, award_type, award_dt, creatorID)
+            session.add(new_award)
+            session.commit()
 
-	return render_template('create_award.html', message=message, page=awardPage, error=error, error_list=error_list, fieldValues=fieldValues)
+            # Base64 encode the signature image for the email service
+            # TODO This doesn't work yet, I couldn't figure out how to actually
+            # load the file
+            # award_user = session.query(awardCreator).filter_by(uid = user.id).first()
+
+            # with open(sig_filename, "rb") as image_file:
+            #   encoded_string = base64encoded(image_file.read())
+
+            # Build the post params the service expects
+            post_params = {
+                'recipient_first_name': fname,
+                'recipient_last_name': lname,
+                'recipient_email': email,
+                'award_date': str(award_date),
+                'award_type': award_type,
+                'awarder_first_name': user.fname,
+                'awarder_last_name': user.lname,
+                # TODO this is just some green square for now until I figure out how to
+                # access the images that are uploaded for signatures
+                'awarder_signature': "iVBORw0KGgoAAAANSUhEUgAAABQAAAAFCAYAAABFA8wzAAAAE0lEQVR42mNk+A+EVASMowZSDABdewn8AEtIaQAAAABJRU5ErkJggg=="
+            }
+
+            r = requests.post('https://stormy-shelf-63646.herokuapp.com/generate', json=post_params)
+            if r.status_code == 200:
+                message = "Successfully sent email, please check your email soon!"
+            else:
+                error = True
+                error_list.append("Problem connecting to email generation service, please try again later")
+
+    return render_template('create_award.html', message=message, page=awardPage, error=error, error_list=error_list, fieldValues=fieldValues)
 
 
 #delete awards - award creator user must be logged
