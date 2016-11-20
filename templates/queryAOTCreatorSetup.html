@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block body_block %}
+        <h1>Generate awards over time report</h1>
+	<table>
+	<tr><th>Name</th>
+	    <th>Days back for report</th></tr>
+	{% for u in users %}
+	    <tr><td>{{ u.fname }} {{ u.lname }}</td>
+	    <td><a href="/admin/analytics/time/creator/7/{{ u.id }}">7</a>&nbsp;
+	 &nbsp;<a href="/admin/analytics/time/creator/30/{{ u.id }}">30</a>&nbsp;
+	 &nbsp;<a href="/admin/analytics/time/creator/90/{{ u.id }}">90</a>&nbsp;
+		</td></tr>
+	{% endfor %}
+	</table>
+        <br /><br />
+{% endblock %}
