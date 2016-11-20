@@ -18,7 +18,8 @@ class Page(object):
 
 
 # default admin page info
-adminLinks = [ Link("/admin/user", "Users"),
+adminLinks = [ Link("/admin", "Admin home"),
+		Link("/admin/user", "Users"),
 		Link("/admin/analytics", "Analytics"),
 		Link("/admin/user/create", "Create user"),
 		Link("/logout", "Log out") ]
