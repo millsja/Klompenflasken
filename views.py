@@ -13,6 +13,8 @@ from datetime import datetime, timedelta
 from functools import wraps
 from page import Link, Page, adminPage, homePage, awardPage, queryPage
 from werkzeug.utils import secure_filename
+import requests
+import base64
 import passwd as passwdModule
 import re
 import matplotlib
@@ -903,114 +905,114 @@ def login():
 #register a new award creator user
 @app.route('/register', methods=['GET', 'POST'])	
 def register():
-	message=None
-	error=False
-	error_list=[]
-	fieldValues = {}
-	if request.method == 'GET':
-		return render_template('register.html', page=homePage, editProfile=False)	
+    message=None
+    error=False
+    error_list=[]
+    fieldValues = {}
+    if request.method == 'GET':
+        return render_template('register.html', page=homePage, editProfile=False)	
 
-	elif request.method == 'POST':
-		register = request.form
-		first_name = register['user-first-name']
-		last_name = register['user-last-name']
-		email = register['user-email']
-		password = register['user-password']
-		organization = register['user-org']
-		city = register['user-city']
-		state = register['user-state']
+    elif request.method == 'POST':
+        register = request.form
+        first_name = register['user-first-name']
+        last_name = register['user-last-name']
+        email = register['user-email']
+        password = register['user-password']
+        organization = register['user-org']
+        city = register['user-city']
+        state = register['user-state']
 
         #Input Validation	
         #First Name - Field is completed
         if not first_name:
-        	error = True
-        	error_list.append("First name is a required field.")
+            error = True
+            error_list.append("First name is a required field.")
         else:
-        	fieldValues['firstName'] = first_name		
+            fieldValues['firstName'] = first_name		
 
         #Last Name - Field is completed
         if not last_name:
-        	error = True
-        	error_list.append("Last name is a required field.")	
+       	    error = True
+       	    error_list.append("Last name is a required field.")	
         else:
-        	fieldValues['lastName'] = last_name	
+       	    fieldValues['lastName'] = last_name	
 
         #Email - Field is completed, field is valid, field is not duplicate
         if not email:
-        	error = True
-        	error_list.append("Email is a required field.")	
+       	    error = True
+       	    error_list.append("Email is a required field.")	
         else:
-        	if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-        		error = True
-        		error_list.append("Please enter a valid email address.")
-        	elif re.match(r"[^@]+@[^@]+\.[^@]+", email):
-        		u = session.query(User).filter_by(email = email).first()
-        		if u != None:
-        			error = True
-        			error_list.append("Email address already registered. Please enter a new email address or login.")	
-		        else:
-		        	fieldValues['email'] = email	
+            if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+                error = True
+                error_list.append("Please enter a valid email address.")
+            elif re.match(r"[^@]+@[^@]+\.[^@]+", email):
+                u = session.query(User).filter_by(email = email).first()
+                if u != None:
+                    error = True
+                    error_list.append("Email address already registered. Please enter a new email address or login.")	
+                else:
+                    fieldValues['email'] = email	
 
         #Password - Field is completed
         if not password:
-        	error = True
-        	error_list.append("Password is a required field.")	
-        else: 
-        	fieldValues['password'] = organization	
+            error = True
+            error_list.append("Password is a required field.")	
+        else:
+            fieldValues['password'] = organization	
 
         #Organization - Field is completed
         if not organization:
-        	error = True
-        	error_list.append("Organization is a required field.")	
-        else: 
-        	fieldValues['org'] = organization	
+            error = True
+            error_list.append("Organization is a required field.")	
+        else:
+            fieldValues['org'] = organization	
 
         #City - Field is completed
     	if not city:
-    		error = True
-        	error_list.append("City is a required field.")	
-        else: 
-        	fieldValues['city'] = city
+            error = True
+            error_list.append("City is a required field.")	
+        else:
+            fieldValues['city'] = city
 
     	#State - Field is completed and field is valid
     	if not state:
-    		error = True
-    		error_list.append("State is a required field.")
+            error = True
+            error_list.append("State is a required field.")
     	elif state:
-    		if not state.isalpha() or len(state) != 2:
-    			error = True
-    			error_list.append("Please enter a valid state code with 2 letters.")
-	    	else:
-	    		fieldValues['state'] = state
+            if not state.isalpha() or len(state) != 2:
+                error = True
+                error_list.append("Please enter a valid state code with 2 letters.")
+            else:
+                fieldValues['state'] = state
 
 		#Image file - field is compelted and file type is valid
 		#Save the signature file to the uploads folder
-		filename = ''
-		file_error = False
-		file = request.files['user-signature']
-		if not file or not allowed_file(file.filename):
-			error = True
-			file_error = True
-			error_list.append("Please upload a valid Signature file (jpg, jpeg, png).")
-		elif not file_error:	
-			filename = secure_filename(file.filename)
-        	file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
-        	user_signature = request.url_root + os.path.join(app.config['UPLOAD_FOLDER'], file.filename) 
-     	
-    	if not error:		 
-			#Create a generic user
-			new_user = User(first_name, last_name, email, password)
-			session.add(new_user)
-			session.commit()
+        filename = ''
+        file_error = False
+        file = request.files['user-signature']
+        if not file or not allowed_file(file.filename):
+           error = True
+           file_error = True
+           error_list.append("Please upload a valid Signature file (jpg, jpeg, png).")
+        elif not file_error:	
+           filename = secure_filename(file.filename)
+           file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
+           user_signature = request.url_root + os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
 
-			#Create an award creator
-			new_award_creator = awardCreator(new_user.id, organization, city, state, user_signature)	
-			session.add(new_award_creator)
-			session.commit()
+        if not error:
+            #Create a generic user
+            new_user = User(first_name, last_name, email, password)
+            session.add(new_user)
+            session.commit()
 
-			message = True
+            #Create an award creator
+            new_award_creator = awardCreator(new_user.id, organization, city, state, user_signature)	
+            session.add(new_award_creator)
+            session.commit()
 
-	return render_template('register.html', message=message, page=homePage, editProfile=False, error=error, error_list=error_list, fieldValues=fieldValues)
+            message = True
+
+    return render_template('register.html', message=message, page=homePage, editProfile=False, error=error, error_list=error_list, fieldValues=fieldValues)
 
 
 
@@ -1069,77 +1071,102 @@ def edit_profile():
 @requiresAwardCreator
 @requiresLogin
 def create_award():
-	message=None
-	error=False
-	error_list=[]
-	fieldValues = {}
-	if request.method == 'GET':
-		return render_template('create_award.html', page=awardPage)	
+    message=None
+    error=False
+    error_list=[]
+    fieldValues = {}
+    if request.method == 'GET':
+        return render_template('create_award.html', page=awardPage)	
 
-	if request.method == 'POST':
-		create_award = request.form
-		fname = create_award['recipient-first-name']
-		lname = create_award['recipient-last-name']
-		email = create_award['recipient-email']
-		awardType = create_award['award-type']
-		award_date = create_award['award-date']
-		award_time = create_award['award-time']
+    if request.method == 'POST':
+        create_award = request.form
+        fname = create_award['recipient-first-name']
+        lname = create_award['recipient-last-name']
+        email = create_award['recipient-email']
+        award_type = create_award['award-type']
+        award_date = create_award['award-date']
+        award_time = create_award['award-time']
 
-		#Input Validation	
+        #Input Validation	
         #First Name - Field is completed
         if not fname:
-        	error = True
-        	error_list.append("Recipient first name is a required field.")
+            error = True
+            error_list.append("Recipient first name is a required field.")
         else:
-        	fieldValues['firstName'] = fname		
+            fieldValues['firstName'] = fname		
 
         #Last Name - Field is completed
         if not lname:
-        	error = True
-        	error_list.append("Recipient last name is a required field.")	
+            error = True
+            error_list.append("Recipient last name is a required field.")	
         else:
-        	fieldValues['lastName'] = lname	
+            fieldValues['lastName'] = lname	
 
         #Email - Field is completed, field is valid, field is not duplicate
         if not email:
-        	error = True
-        	error_list.append("Recipient email address is a required field.")	
+            error = True
+            error_list.append("Recipient email address is a required field.")	
         else:
-        	if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-        		error = True
-        		error_list.append("Please enter a valid email address.")   	
-     		else:
-		        fieldValues['email'] = email
+            if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+                error = True
+                error_list.append("Please enter a valid email address.")
+            else:
+                fieldValues['email'] = email
 
-		errorPrint("here")        
-
-		#Award Date
-		if not award_date:
-			error = True
-			error_list.append("Award date is a required field.")
-		else:
-			fieldValues['awardDate'] = award_date
+        #Award Date
+        if not award_date:
+            error = True
+            error_list.append("Award date is a required field.")
+        else:
+            fieldValues['awardDate'] = award_date
 
 
-		if not error:        
-			#Convert date and time to datetime format
-			date_time = award_date + ' ' + award_time
-			award_dt = datetime.strptime(date_time, '%Y-%m-%d %I:%M')
+        if not error:
+            #Convert date and time to datetime format
+            date_time = award_date + ' ' + award_time
+            award_dt = datetime.strptime(date_time, '%Y-%m-%d %I:%M')
 
-			#Get Logged in User ID
-			user = getLoggedInUser()
-			if user is not None:
-				creatorID = user.id
-			else:
-				user.id = 0	
-		
-			new_award = award(fname, lname, email, awardType, award_dt, creatorID)
-			session.add(new_award)
-			session.commit()
+            #Get Logged in User ID
+            user = getLoggedInUser()
+            if user is not None:
+                creatorID = user.id
+            else:
+                user.id = 0
 
-			message = "New award added to the database."
+            new_award = award(fname, lname, email, award_type, award_dt, creatorID)
+            session.add(new_award)
+            session.commit()
 
-	return render_template('create_award.html', message=message, page=awardPage, error=error, error_list=error_list, fieldValues=fieldValues)
+            # Base64 encode the signature image for the email service
+            # TODO This doesn't work yet, I couldn't figure out how to actually
+            # load the file
+            # award_user = session.query(awardCreator).filter_by(uid = user.id).first()
+
+            # with open(sig_filename, "rb") as image_file:
+            #   encoded_string = base64encoded(image_file.read())
+
+            # Build the post params the service expects
+            post_params = {
+                'recipient_first_name': fname,
+                'recipient_last_name': lname,
+                'recipient_email': email,
+                'award_date': str(award_date),
+                'award_type': award_type,
+                'awarder_first_name': user.fname,
+                'awarder_last_name': user.lname,
+                # TODO this is just some green square for now until I figure out how to
+                # access the images that are uploaded for signatures
+                'awarder_signature': "iVBORw0KGgoAAAANSUhEUgAAABQAAAAFCAYAAABFA8wzAAAAE0lEQVR42mNk+A+EVASMowZSDABdewn8AEtIaQAAAABJRU5ErkJggg=="
+            }
+
+            r = requests.post('https://stormy-shelf-63646.herokuapp.com/generate', json=post_params)
+            if r.status_code == 200:
+                message = "Successfully sent email, please check your email soon!"
+            else:
+                error = True
+                error_list.append("Problem connecting to email generation service, please try again later")
+
+    return render_template('create_award.html', message=message, page=awardPage, error=error, error_list=error_list, fieldValues=fieldValues)
 
 
 #delete awards - award creator user must be logged

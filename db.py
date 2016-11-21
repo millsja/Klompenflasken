@@ -44,7 +44,7 @@ class awardCreator(Base):
 	signature = Column(String(128), nullable=False)
 	# Column('signature', String(64), nullable=False)
 
-	def __init__(self, uid, org, city, signature):
+	def __init__(self, uid, org, city, state, signature):
 		self.uid = uid
 		self.org = org
 		self.city = city
