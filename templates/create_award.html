@@ -2,24 +2,25 @@
 
 {% block body_block %}
 	<h1>---Create Award---</h1>
+	<p>Create three types of awards for employees including Employee of the Month, Employee of the Quarter, and Employee of the Year. After an award is created, the online tool will automatically send a PDF certificate to the recipient via email.</p>
 	<div>
 		<form id="create-award-form" action="/awards/create_award" method="POST">
 			<div class="formMain"  id="awardsForm">
 				<div class="formLeft">
-					<label for="recipient-first-name">Recipient First Name:&nbsp;</label>
+					<label for="recipient-first-name">Recipient First Name*:&nbsp;</label>
 					<input type="text" name="recipient-first-name" {% if error and fieldValues.firstName %} value="{{ fieldValues.firstName }}"{% endif %}>
 					<div class="floatClear"></div>
 					
-					<label for="recipient-last-name">Recipient Last Name:&nbsp;</label>
+					<label for="recipient-last-name">Recipient Last Name*:&nbsp;</label>
 					<input type="text" name="recipient-last-name" {% if error and fieldValues.lastName %} value="{{ fieldValues.lastName }}"{% endif %}>
 					<div class="floatClear"></div>
 
-					<label for="recipient-email">Recipient Email Address:&nbsp;</label>
+					<label for="recipient-email">Recipient Email Address*:&nbsp;</label>
 					<input type="email" name="recipient-email" {% if error and fieldValues.email %} value="{{ fieldValues.email }}"{% endif %}>
 					<div class="floatClear"></div>
 				</div>
 				<div class="formRight">
-					<label for="award-type">Award Type:&nbsp;</label>
+					<label for="award-type">Award Type*:&nbsp;</label>
 					<select name="award-type">
 						<option value="Employee of the Month">Employee of the Month</option>
 						<option value="Employee of the Quarter">Employee of the Quarter</option>
@@ -27,11 +28,11 @@
 					</select>	
 					<div class="floatClear"></div>
 
-					<label for="award-date">Award Date:&nbsp;</label>
+					<label for="award-date">Award Date*:&nbsp;</label>
 					<input type="date" name="award-date" {% if error and fieldValues.awardDate %} placeholder="Test" value="{{ fieldValues.awardDate }}"{% endif %}>
 					<div class="floatClear"></div>
 
-					<label for="award-time">Award Time:&nbsp;</label>
+					<label for="award-time">Award Time*:&nbsp;</label>
 					<input type="time" name="award-time">
 					<div class="floatClear"></div>
 				</div>	

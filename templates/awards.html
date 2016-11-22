@@ -1,7 +1,24 @@
 {% extends 'base.html' %}
 
 {% block body_block %}
-        <h1>---Awards page---</h1>
-        <br /><br />
+        <h1>---Awards---</h1>
+        <p>Create and manage employee recognition awards.</p>
+        <br>
+        <div class="templateSection">
+        	<h2>Create Award</h2>
+        	<p>Create three types of awards for employees including Employee of the Month, Employee of the Quarter,
+        		and Employee of the Year. After an award is created, the online tool will automatically send a PDF certificate to the recipient via email.</p>
+        	<a href="/awards/create_award"><button class="btn btn-lg btn-primary btn-block block-center">Create Award</button></a>	
+        </div>
+        <div class="templateSection">
+        	<h2>Manage Awards</h2>
+        	<p>The online application provides you with a full history of all awards previously created. You can manage these awards by deleting awards from the system.</p>
+        	<a href="/awards/delete_awards"><button class="btn btn-lg btn-primary btn-block block-center">Manage Awards</button></a>	
+        </div>
+         <div class="templateSection">
+        	<h2>Edit Profile</h2>
+        	<p>Edit your profile to update the data you entered during registration.</p>
+        	<a href="/awards/edit_profile"><button class="btn btn-lg btn-primary btn-block block-center">Edit Profile</button></a>	
+        </div>
 {% endblock %}
 

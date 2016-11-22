@@ -39,7 +39,7 @@ homePage = Page("Klompendansen", homeLinks)
 
 # default awards page info
 awardLinks = [ Link("/awards/create_award", "Create Award"),
-		Link("/awards/delete_awards", "Delete Awards"),
+		Link("/awards/delete_awards", "Manage Awards"),
 		Link("/awards/edit_profile", "Edit Profile"),
 		Link("/logout", "Log out") ]
 awardPage = Page("Awards section", awardLinks)

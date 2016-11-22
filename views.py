@@ -1055,7 +1055,6 @@ def edit_profile():
 		user.fname = update['user-first-name']
 		user.lname = update['user-last-name']
 		user.email = update['user-email']
-		user.passwd = update['user-password']
 		awardUser.org = update['user-org']
 		awardUser.city = update['user-city']
 

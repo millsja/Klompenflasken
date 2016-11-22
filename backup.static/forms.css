@@ -96,3 +96,19 @@ td, th {
 	padding: 10px 15px;
 	border: 1px solid;
 }
+
+.templateSection {
+	border: 1px solid #e5e5e5;
+	padding: 30px;
+	max-width: 80%;
+	margin: 0 auto 40px;
+}
+.block-center {
+	width: 25%;
+	margin: 20px auto 0;
+}
+.block-side {
+	display: inline-block;
+	width: 25%;
+	margin: 10px 5px 20px 5px;
+}

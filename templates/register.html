@@ -3,8 +3,10 @@
 {% block body_block %}
 	{% if editProfile %}
 		<h1>---Edit Profile---</h1>
+		<p>Edit your profile to update the data you entered during registration.</p>
 	{% else %}
 		<h1>---Register User---</h1>
+		<p>After registering for an account, you will be be able to create new awards, view/delete awards previously granted, and edit your user profile.</p>
 	{% endif %}	
 	<div class="registeration">
 		<form id="register-form" {% if editProfile %}action="/awards/edit_profile" {% else %} action="/register" {% endif %} method="post" enctype="multipart/form-data">

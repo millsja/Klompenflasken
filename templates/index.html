@@ -1,7 +1,21 @@
 {% extends 'base.html' %}
 
 {% block body_block %}
-        <h1>Placeholder text</h1>
-        <br /><br />
+        <h1>WEB3: Employee Recognition</h1>
+        <p>An online application for managing and creating employee recognition awards.</p>
+        <br>
+        <div class="templateSection">
+	        <h2>Register</h2>
+	        <p>To use this tool, you must register and create a new account. After registering for an account, you will be
+	        	be able to create new awards, view/delete awards previously granted, and edit your user profile. To begin, click on the register button below.</p>
+	      	<a href="/register"><button class="btn btn-lg btn-primary btn-block block-center">Register</button></a>
+	    </div> 	
+	    <div class="templateSection">
+	    	<h2>Login</h2>
+	        <p>There are two sections of the website with separate access privileges: Admin and Awards. If you are granted access as an Award Creator, you will be able to create new awards and view/delete awards previously granted.</p> 
+	        <p>If you are granted access as an Admin, you will be able to add/edit/delete Award Creators, add/edit/delete other Admin users, and perform Business Intelligence reporting operations.</p>
+	        <a href="/admin"><button class="btn btn-lg btn-primary btn-block block-side">Admin</button></a><a href="/awards"><button class="btn btn-lg btn-primary btn-block block-side">Awards</button></a>
+	    </div>    
+        <p>Team Members: James Mills, Nathaniel Piche, Louise McGuire</p>
 {% endblock %}
 
