@@ -8,6 +8,7 @@
 	    {% if creator %}
 	    <th>Organization</th>
 	    <th>City</th>
+	    <th>State</th>
 	    {% endif %}
 	    <th>Admin</th>
 	    <th>Email</th>
@@ -16,6 +17,7 @@
 	    {% if creator %}
 	    <td>{{ creator.org }}</td>
 	    <td>{{ creator.city }}</td>
+	    <td>{{ creator.state }}</td>
 	    {% endif %}
 	    <td>{{ user.admin }}</td>
 	    <td>{{ user.email }}</td>

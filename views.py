@@ -719,6 +719,7 @@ def adminUserEdit(user_id):
 			if creator:
 				creator.org = request.form.get('org', None)
 				creator.city = request.form.get('city', None)
+				creator.state = request.form.get('state', None)
 			user.fname = request.form.get('fname', None)
 			user.lname = request.form.get('lname', None)
 			user.email = request.form.get('email', None)
@@ -758,6 +759,7 @@ def adminUserCreate():
 	elif request.method == 'POST':
 		org = request.form.get('org', None)
 		city = request.form.get('city', None)
+		state = request.form.get('state', None)
 		fname = request.form.get('fname', None)
 		lname = request.form.get('lname', None)
 		email = request.form.get('email', None)
@@ -780,7 +782,7 @@ def adminUserCreate():
 			try:
 				user = session.query(User).filter_by(
 					email=email).first()
-				newCreator = awardCreator(user.id, org, city)
+				newCreator = awardCreator(user.id, org, city, state, "blank")
 				session.add(newCreator)
 				session.commit()
 			except:
