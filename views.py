@@ -997,7 +997,10 @@ def register():
         elif not file_error:	
            filename = secure_filename(file.filename)
            file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
-           user_signature = request.url_root + os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+           file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+           encoded_string = ""
+           with open(file_path, "rb") as image_file:
+              encoded_string = base64.b64encode(image_file.read())
 
         if not error:
             #Create a generic user
@@ -1006,7 +1009,7 @@ def register():
             session.commit()
 
             #Create an award creator
-            new_award_creator = awardCreator(new_user.id, organization, city, state, user_signature)	
+            new_award_creator = awardCreator(new_user.id, organization, city, state, encoded_string)
             session.add(new_award_creator)
             session.commit()
 
@@ -1136,13 +1139,8 @@ def create_award():
             session.add(new_award)
             session.commit()
 
-            # Base64 encode the signature image for the email service
-            # TODO This doesn't work yet, I couldn't figure out how to actually
-            # load the file
-            # award_user = session.query(awardCreator).filter_by(uid = user.id).first()
-
-            # with open(sig_filename, "rb") as image_file:
-            #   encoded_string = base64encoded(image_file.read())
+            award_user = session.query(awardCreator).filter_by(uid = user.id).first()
+            signature = award_user.signature
 
             # Build the post params the service expects
             post_params = {
@@ -1153,9 +1151,7 @@ def create_award():
                 'award_type': award_type,
                 'awarder_first_name': user.fname,
                 'awarder_last_name': user.lname,
-                # TODO this is just some green square for now until I figure out how to
-                # access the images that are uploaded for signatures
-                'awarder_signature': "iVBORw0KGgoAAAANSUhEUgAAABQAAAAFCAYAAABFA8wzAAAAE0lEQVR42mNk+A+EVASMowZSDABdewn8AEtIaQAAAABJRU5ErkJggg=="
+                'awarder_signature': signature
             }
 
             r = requests.post('https://stormy-shelf-63646.herokuapp.com/generate', json=post_params)
