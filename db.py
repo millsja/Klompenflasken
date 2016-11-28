@@ -1,6 +1,6 @@
 from datetime import datetime
 from sqlalchemy import (
-	Table, Column, Integer, String, ForeignKey, DateTime, Boolean )
+	Table, Column, Integer, String, ForeignKey, DateTime, Boolean, Text )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
@@ -41,7 +41,7 @@ class awardCreator(Base):
 	org = Column(String(128), nullable=False)
 	city = Column(String(64), nullable=False)
 	state = Column(String(64), nullable=False)
-	signature = Column(String(128), nullable=False)
+	signature = Column(Text, nullable=False)
 	# Column('signature', String(64), nullable=False)
 
 	def __init__(self, uid, org, city, state, signature):
