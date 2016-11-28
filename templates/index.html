@@ -1,21 +1,32 @@
 {% extends 'base.html' %}
 
 {% block body_block %}
-        <h1>WEB3: Employee Recognition</h1>
-        <p>An online application for managing and creating employee recognition awards.</p>
-        <br>
-        <div class="templateSection">
-	        <h2>Register</h2>
-	        <p>To use this tool, you must register and create a new account. After registering for an account, you will be
-	        	be able to create new awards, view/delete awards previously granted, and edit your user profile. To begin, click on the register button below.</p>
-	      	<a href="/register"><button class="btn btn-lg btn-primary btn-block block-center">Register</button></a>
-	    </div> 	
-	    <div class="templateSection">
-	    	<h2>Login</h2>
-	        <p>There are two sections of the website with separate access privileges: Admin and Awards. If you are granted access as an Award Creator, you will be able to create new awards and view/delete awards previously granted.</p> 
-	        <p>If you are granted access as an Admin, you will be able to add/edit/delete Award Creators, add/edit/delete other Admin users, and perform Business Intelligence reporting operations.</p>
-	        <a href="/admin"><button class="btn btn-lg btn-primary btn-block block-side">Admin</button></a><a href="/awards"><button class="btn btn-lg btn-primary btn-block block-side">Awards</button></a>
-	    </div>    
-        <p>Team Members: James Mills, Nathaniel Piche, Louise McGuire</p>
+<div style="width:800px; overflow:hidden;
+                margin-left:auto; margin-right:auto;">
+        <h1 style="margin-bottom:7px;">WEB3: Employee Recognition</h1>
+        <p><span style="font-weight:bold">An online application for managing and creating employee recognition awards</span><br />
+	James Mills, Nathaniel Piche, Louise McGuire<br />
+	Oregon State University | Fall 2016</p>
+	        <p>There are two sections of the website with separate access privileges: Admin and Awards. If you are granted access as an Award Creator, you will be able to create new awards and view/delete awards previously granted. Admin users are able to add/edit/delete both Award Creators and other Admin users, as well as generate reports on user activity.</p>
+        <div style="margin-left:55px; width:350px; float:left; text-align:center;">
+	        <h2 style="margin-bottom:18px;">For users</h2>
+	        <p style="text-align:left;">To use this tool, you must register and create a new account. After registering for an account, you will be able to create new awards, view/delete awards previously granted, and edit your user profile.</p>
+<p style="text-align:left">To begin, click on the register button below.</p>
+	      	<a style="text-align:center;" href="/register"><button class="btn btn-lg btn-primary btn-block block-center" style="margin-left:auto; margin-right: auto; width:150px;">Register</button></a><br />
+<p style="text-align:left">If you've already registered, click log in.</p>
+		<a href="/awards" style="text-align:center;"><button class="btn btn-lg btn-primary btn-block block-side" style="width:150px; margin-left: auto; margin-right: auto;">Log in</button></a>
+
+        </div>
+        
+	<div style="margin-top:3px; width:350px; float:left; margin-left:15px;">
+        <h2 style="margin-bottom:18px;">For admin</h2>
+	<p style="text-align:left;">If you've got admin access to our website, simply follow the link below to log in. Privileges are granted on a case-by-case basis. If you don't already have it, you probably don't need it.</p>
+	<a href="/admin"><button class="btn btn-lg btn-primary btn-block block-side" style="margin-left: auto; margin-right: auto; width:150px;">Log in</button></a>
+        </div>
+        
+	</div>
+
+        <br /><br />
+
 {% endblock %}
 

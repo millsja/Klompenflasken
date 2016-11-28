@@ -36,6 +36,12 @@ homeLinks = [ Link("/admin", "Admin"),
 		Link("/register", "Register") ]
 homePage = Page("Klompendansen", homeLinks)
 
+# default homepage info - logged in
+homeLinks = [ Link("/admin", "Admin"),
+		Link("/awards", "Awards"),
+		Link("/logout", "Log out") ]
+homePage = Page("Klompendansen", homeLinks)
+
 
 # default awards page info
 awardLinks = [ Link("/awards/create_award", "Create Award"),
