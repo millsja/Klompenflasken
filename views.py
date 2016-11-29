@@ -1033,20 +1033,25 @@ def register():
               encoded_string = base64.b64encode(image_file.read())
 
         if not error:
-            #Create a generic user
-            new_user = User(first_name, last_name, email, password)
-            session.add(new_user)
-            session.commit()
+        	try:
+	            #Create a generic user
+	            new_user = User(first_name, last_name, email, password)
+	            session.add(new_user)
+	            session.commit()
 
-            #Create an award creator
-            new_award_creator = awardCreator(new_user.id, organization, city, state, encoded_string)
-            session.add(new_award_creator)
-            session.commit()
+	            #Create an award creator
+	            new_award_creator = awardCreator(new_user.id, organization, city, state, encoded_string)
+	            session.add(new_award_creator)
+	            session.commit()
 
-            message = True
-
+	            message = True
+	        except:
+	        	message = "Error registering user. \
+	        		Please try again."
+        		session.rollback()
+        		return render_template('error.html', message = message, page = homePage)
+	
     return render_template('register.html', message=message, page=homePage, editProfile=False, error=error, error_list=error_list, fieldValues=fieldValues)
-
 
 
 
@@ -1065,37 +1070,99 @@ def awards():
 def edit_profile():
 	message=None
 	editProfile =True
+	user_email = None
+	error=False
+	error_list=[]
+	fieldValues = {}
 	
 	if request.method == 'GET':
 		user = getLoggedInUser()
 		awardUser = session.query(awardCreator).filter_by(uid = user.id).first()
-		sig_url = awardUser.signature
-		errorPrint("The signature: " + awardUser.signature)
-
-		# [james]: I modified this. it "works" now in the sense
-		# that it doesn't crash. but it probably doesn't function
-		# as intended. original version in comments below:
-		#
-		# sig_filename = sig_url.split("uploads/",1)[1]
-
-		sig_filename = sig_url.split("/uploads/",1)[0]
-		return render_template('register.html', editProfile=editProfile, user=user, awardUser=awardUser, sig_filename=sig_filename, page=awardPage)
+		
+		return render_template('register.html', editProfile=editProfile, user=user, awardUser=awardUser, page=awardPage)
 	
 	if request.method == 'POST':
 		user = getLoggedInUser()
+		user_email = user.email
 		awardUser = session.query(awardCreator).filter_by(uid = user.id).first()
 		update = request.form
+		
 		user.fname = update['user-first-name']
 		user.lname = update['user-last-name']
 		user.email = update['user-email']
 		awardUser.org = update['user-org']
 		awardUser.city = update['user-city']
+		awardUser.state = update['user-state']
 
-		session.commit()
+		#Input Validation	
+        #First Name - Field is completed
+		if not user.fname:
+		    error = True
+		    error_list.append("First name is a required field.")
+		else:
+		    fieldValues['firstName'] = user.fname
 
-		message="User profile updated."
+		#Last Name - Field is completed
+		if not user.lname:
+		    error = True
+		    error_list.append("Last name is a required field.")
+		else:
+		    fieldValues['lastName'] = user.lname
 
-		return render_template('register.html', editProfile=editProfile, user=user, awardUser=awardUser, message=message, page=awardPage)
+		#Email - Field is completed and field is valid
+		if not user.email:
+		    error = True
+		    error_list.append("Email is a required field.")
+		else:
+			if not re.match(r"[^@]+@[^@]+\.[^@]+", user.email):
+			    error = True
+			    error_list.append("Please enter a valid email address.")
+			else:
+				with session.no_autoflush:
+					u = session.query(User).filter_by(email=user.email).first()
+					if u != None:
+						if user.email != user.email:
+							error = True
+							error_list.append("Email address already registered. Please enter a new email address or login.")
+				if error == False:
+					fieldValues['email'] = user.email
+
+		#Org - Field is completed 
+		if not awardUser.org:
+		    error = True
+		    error_list.append("Organization is a required field.")
+		else:
+		    fieldValues['org'] = awardUser.org
+
+		#City - Field is completed 
+		if not awardUser.city:
+		    error = True
+		    error_list.append("City is a required field.")
+		else:
+		    fieldValues['city'] = awardUser.city  
+
+	    #State - Field is completed and field is valid
+		if not awardUser.state:
+		    error = True
+		    error_list.append("State is a required field.")
+		else:
+			if not awardUser.state.isalpha() or len(awardUser.state) != 2:
+				error = True
+				error_list.append("Please enter a valid state code with 2 letters.")
+			else:
+				fieldValues['state'] = awardUser.state   
+    
+		if not error:
+			try:    
+				session.commit()
+				message="User profile updated."
+				return render_template('register.html', editProfile=editProfile, user=user, awardUser=awardUser, error=error, error_list=error_list, fieldValues=fieldValues, message=message, page=awardPage)
+			except:
+				message = "Error updating profile. Please try again."
+        		session.rollback()
+        		return render_template('error.html', message=message, page=awardPage)
+
+		return render_template('register.html', editProfile=editProfile, user=user, awardUser=awardUser, error=error, error_list=error_list, fieldValues=fieldValues, message=message, page=awardPage)
 
 
 #create an award - award creator user must be logged in 
@@ -1145,53 +1212,82 @@ def create_award():
             else:
                 fieldValues['email'] = email
 
-        #Award Date
+        #Award Type        
+        if not award_type:
+            error = True
+            error_list.append("Award Type is a required field.")
+        else:
+            fieldValues['awardType'] = award_type	        
+
+        #Award Date - Field is completed, field is valid
         if not award_date:
             error = True
             error_list.append("Award date is a required field.")
         else:
-            fieldValues['awardDate'] = award_date
+        	try:
+        		datetime.strptime(award_date, '%m/%d/%Y')
+        		fieldValues['awardDate'] = award_date
+        	except:	
+        		error = True
+        		error_list.append("Please enter valid award date (mm/dd/yyyy).")
+    
+        #Award Time - Field is completed, field is valid
+        if not award_time:
+        	error = True
+        	error_list.append("Award time is a required field.")
+        else:
+        	try:
+        		datetime.strptime(award_time, '%I:%M')
+        		fieldValues['awardTime'] = award_time	
+        	except:
+        		error = True
+        		error_list.append("Please enter valid award time (hh:mm).")
 
+		if not error:
+			try:
+				#Convert date and time to datetime format
+				date_time = award_date + ' ' + award_time
+				award_dt = datetime.strptime(date_time, '%m/%d/%Y %I:%M')
 
-        if not error:
-            #Convert date and time to datetime format
-            date_time = award_date + ' ' + award_time
-            award_dt = datetime.strptime(date_time, '%Y-%m-%d %I:%M')
+		        #Get Logged in User ID
+				user = getLoggedInUser()
+				if user is not None:
+					creatorID = user.id
+				else:
+					user.id = 0
 
-            #Get Logged in User ID
-            user = getLoggedInUser()
-            if user is not None:
-                creatorID = user.id
-            else:
-                user.id = 0
+				new_award = award(fname, lname, email, award_type, award_dt, creatorID)
+				session.add(new_award)
+				session.commit()
 
-            new_award = award(fname, lname, email, award_type, award_dt, creatorID)
-            session.add(new_award)
-            session.commit()
+				award_user = session.query(awardCreator).filter_by(uid = user.id).first()
+				signature = award_user.signature
 
-            award_user = session.query(awardCreator).filter_by(uid = user.id).first()
-            signature = award_user.signature
+				# Build the post params the service expects
+				post_params = {
+					'recipient_first_name': fname,
+					'recipient_last_name': lname,
+					'recipient_email': email,
+					'award_date': str(award_date),
+					'award_type': award_type,
+					'awarder_first_name': user.fname,
+					'awarder_last_name': user.lname,
+					'awarder_signature': signature
+				}
 
-            # Build the post params the service expects
-            post_params = {
-                'recipient_first_name': fname,
-                'recipient_last_name': lname,
-                'recipient_email': email,
-                'award_date': str(award_date),
-                'award_type': award_type,
-                'awarder_first_name': user.fname,
-                'awarder_last_name': user.lname,
-                'awarder_signature': signature
-            }
+				r = requests.post('https://stormy-shelf-63646.herokuapp.com/generate', json=post_params)
+				if r.status_code == 200:
+					message = "Successfully sent email, please check your email soon!"
+				else:
+					error = True
+					error_list.append("Problem connecting to email generation service, please try again later")
+				return render_template('create_award.html', message=message, page=awardPage, error = error, error_list = error_list, fieldValues = fieldValues)
+			except:
+				message = "Error creating award. Please try again."
+        		session.rollback()
+        		return render_template('error.html', message=message, page=awardPage)
 
-            r = requests.post('https://stormy-shelf-63646.herokuapp.com/generate', json=post_params)
-            if r.status_code == 200:
-                message = "Successfully sent email, please check your email soon!"
-            else:
-                error = True
-                error_list.append("Problem connecting to email generation service, please try again later")
-
-    return render_template('create_award.html', message=message, page=awardPage, error=error, error_list=error_list, fieldValues=fieldValues)
+    	return render_template('create_award.html', message=message, page=awardPage, error = error, error_list = error_list, fieldValues = fieldValues)	
 
 
 #delete awards - award creator user must be logged
@@ -1210,19 +1306,22 @@ def delete_awards(methods=['GET', 'POST']):
 	if request.method == 'POST':
 		award_form = request.form
 		award_id = award_form['award-id']
-		errorPrint(award_id)
 		award_to_delete = session.query(award).filter_by(id = award_id).first()
-		errorPrint(award_to_delete)
-		session.delete(award_to_delete)
-		session.commit()
 
-		message="Award deleted."
+		try: 
+			session.delete(award_to_delete)
+			session.commit()
+			message="Award deleted."
 
-		#Get Logged in User ID
-		user = getLoggedInUser()
-		user_awards = session.query(award).filter_by(creatorID = user.id)
+			#Get Logged in User ID
+			user = getLoggedInUser()
+			user_awards = session.query(award).filter_by(creatorID = user.id)
 
-		return render_template('delete_awards.html', user_awards=user_awards, message=message, page=awardPage)
+			return render_template('delete_awards.html', user_awards=user_awards, message=message, page=awardPage)
+		except:
+			message = "Error deleting award. Please try again."
+        	session.rollback()
+        	return render_template('error.html', message=message, page=awardPage)	
 	
 	return render_template('delete_awards.html', page=awardPage)
 
