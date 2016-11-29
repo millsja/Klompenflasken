@@ -2,47 +2,61 @@
 
 {% block body_block %}
 	<h1>Create user</h1>
-	<form action="/admin/user/create" method="POST" enctype="multipart/form-data">
-	<div class="formMain">
-	<div class="formLeft">
+	<form action="/admin/user/create" 
+		method="POST" enctype="multipart/form-data">
+	<div class="formMain" style="width: 790px; overflow:hidden; 
+		text-align:left; margin-left: auto; margin-right: auto;">
+	<div class="formLeft" style="margin-left: 115px; float:left; 
+		width: 300px; margin-right:15px;">
+  		<p style="font-weight:bold">Required for all:</p>
 		<label for="fname">First name:&nbsp;</label>
-		<input type="text" name="fname">
+		<input type="text" name="fname" 
+			style="float:right; margin-right:45px;">
 		<div class="floatClear"></div>
 
 		<label for="lname">Last name:&nbsp;</label>
-		<input type="text" name="lname">
-
+		<input type="text" name="lname" style="float:right; 
+			margin-right:45px;">
 		<div class="floatClear"></div>
-		<label for="org">Organization:&nbsp;</label>
-		<input type="text" name="org">
+  
+  		<label for="email">Email:&nbsp;</label>
+		<input type="text" name="email" style="float:right; 
+			margin-right:45px;">
+		<div class="floatClear"></div>
 
                 <div class="floatClear"></div>
                 <label for="admin">Admin&nbsp;</label>
-                <input style="width:15px; padding-top:2px;"
-                type="checkbox" name="admin">
+                <input style="width:15px; padding-top:2px;" type="checkbox" 
+			name="admin">
 
 	</div>
-	<div class="formRight">
-		<label for="email">Email:&nbsp;</label>
-		<input type="text" name="email">
-		<div class="floatClear"></div>
+	<div class="formRight" style="float:left; width:350px;">
+		<p style="font-weight:bold">Required for award creators:</p>
+  		<div class="floatClear"></div>
+		<label for="org">Organization:&nbsp;</label>
+		<input type="text" name="org" style="float:right; 
+			margin-right:75px;">
+  		<div class="floatClear"></div>
 
 		<label for="city">City:&nbsp;</label>
-		<input type="text" name="city">
+		<input type="text" name="city" style="float:right; 
+			margin-right:75px;">
 		<div class="floatClear"></div>
 
 		<label for="state">State:&nbsp;</label>
-		<input type="text" name="state">
+		<input type="text" name="state" style="float:right; 
+			margin-right:75px;">
 		<div class="floatClear"></div>
-
- 		<label for="user-signature" class="fileLabel">
+  
+ 		<div style="width: 350px; overflow: hidden;">
+		<label for="user-signature" style="float:left; width: 75px;">
 			Signature:&nbsp;</label>
-		<input type="file" name="signature"> 
+		<input style="width:215px; float:right; 
+			margin-right:28px;" type="file" name="signature"></div>
 		<div class="floatClear"></div>
 
-
-		<input class="formSubmit" type="submit" value="Create user">
 	</div>
+		<input class="formSubmit" type="submit" value="Create user">
 	</div>
 	</form>
         <br /><br />

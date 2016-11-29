@@ -1,23 +1,26 @@
 {% extends 'base.html' %}
 
 {% block body_block %}
-	<h1>Edit user</h1>
+	<h1 style="margin-bottom:25px;">Edit user</h1>
 	{% if user %}
 	<form action="/admin/user/edit/{{ user.id }}" method="POST">
-	<div class="formMain">
-	<div class="formLeft">
+	<div class="formMain" style="width: 790px; overflow:hidden;
+                text-align:left; margin-left: auto; margin-right: auto;">
+	<div class="formLeft" style="margin-left: 115px; float:left;
+                width: 300px; margin-right:15px;">
 		<label for="fname">First name:&nbsp;</label>
-		<input type="text" name="fname" value="{{ user.fname }}">
+		<input type="text" name="fname" value="{{ user.fname }}"
+                        style="float:right; margin-right:45px;">
 		<div class="floatClear"></div>
 
 		<label for="lname">Last name:&nbsp;</label>
-		<input type="text" name="lname" value="{{ user.lname }}">
+		<input type="text" name="lname" value="{{ user.lname }}"
+                        style="float:right; margin-right:45px;">
 
-		{% if creator %}
-			<div class="floatClear"></div>
-			<label for="org">Organization:&nbsp;</label>
-			<input type="text" name="org" value="{{ creator.org }}">
-		{% endif %}
+		<label for="email">Email:&nbsp;</label>
+		<input type="text" name="email" value="{{ user.email }}"
+                        style="float:right; margin-right:45px;">
+		<div class="floatClear"></div>
 
 		<div class="floatClear"></div>
 		<label for="admin">Admin&nbsp;</label>
@@ -25,24 +28,39 @@
 		type="checkbox" name="admin"
 		{% if user.admin %} checked="checked" {% endif %}>
 	</div>
-	<div class="formRight">
-		<label for="email">Email:&nbsp;</label>
-		<input type="text" name="email" value="{{ user.email }}">
-		<div class="floatClear"></div>
+	<div class="formRight" style="float:left; width:350px;">
+		{% if creator %}
+			<div class="floatClear"></div>
+			<label for="org">Organization:&nbsp;</label>
+			<input type="text" name="org" 
+				value="{{ creator.org }}"
+				style="float:right; margin-right:45px;">
+		{% endif %}
 
 		<label for="created">Date created:&nbsp;</label>
 		<input type="text" name="created" value="{{ user.created }}"
-			readonly="readonly" disabled="disabled">
+			readonly="readonly" disabled="disabled"
+			style="float:right; margin-right:45px;">
 		<div class="floatClear"></div>
 
 		{% if creator %}
 			<label for="city">City:&nbsp;</label>
-			<input type="text" name="city" value="{{ creator.city }}">
+			<input type="text" name="city" 
+				value="{{ creator.city }}"
+	                        style="float:right; margin-right:45px;">
+			<div class="floatClear"></div>
+
+			<label for="state">State:&nbsp;</label>
+			<input type="text" name="state" 
+				value="{{ creator.state }}"
+	                        style="float:right; margin-right:45px;">
 			<div class="floatClear"></div>
 
 		{% endif %}
 
-		<input class="formSubmit" type="submit" value="Submit changes">
+		<br />
+		<input class="formSubmit" type="submit" value="Submit changes"
+                        style="float:right; margin-right:45px;">
 	</div>
 	</div>
 	</form>
