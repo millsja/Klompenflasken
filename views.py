@@ -11,7 +11,7 @@ from sqlalchemy import func, desc
 from db import Base, User, awardCreator, award
 from datetime import datetime, timedelta
 from functools import wraps
-from page import Link, Page, adminPage, homePage, awardPage, queryPage
+from page import Link, Page, adminPage, homePage, awardPage, queryPage, loggedInPage
 from werkzeug.utils import secure_filename
 import requests
 import base64
@@ -154,7 +154,12 @@ def uploaded_file(filename):
 @app.route("/index")
 @app.route("/")
 def index():
-	return render_template('index.html', page=homePage)
+	cookie = request.cookies.get('session-cookie')
+	if cookie is not None:
+		page=loggedInPage
+	else:
+		page=homePage
+	return render_template('index.html', page=page)
 
 
 # the function factory for creating login-required pages
@@ -771,9 +776,10 @@ def adminUserCreate():
 			newUser = User(fname, lname, email, passwd, admin)
 			session.add(newUser)
 			session.commit()
-		except:
+		except Exception as e:
 			message = "Error creating user. \
 				  Please try again."
+			errorPrint("Error: " + repr(e))
 			session.rollback()
 			return render_template('error.html', 
 				message = message, page = adminPage) 
@@ -782,12 +788,34 @@ def adminUserCreate():
 			try:
 				user = session.query(User).filter_by(
 					email=email).first()
-				newCreator = awardCreator(user.id, org, city, state, "blank")
+				filename = ''
+				file = request.files['signature']
+				if not file or not allowed_file(file.filename):
+					raise Exception('Bad signature')
+				else:
+					errorPrint("good file and filename")
+				filename = secure_filename(file.filename)
+				file.save(os.path.join(
+					app.config['UPLOAD_FOLDER'], 
+					file.filename))
+				file_path = os.path.join(
+					app.config['UPLOAD_FOLDER'], 
+					file.filename)
+				encoded_string = ""
+				with open(file_path, "rb") as image_file:
+					encoded_string = base64.b64encode(
+						image_file.read())
+				newCreator = awardCreator(user.id, 
+							org, 
+							city, 
+							state, 
+							encoded_string)
 				session.add(newCreator)
 				session.commit()
-			except:
-				message = "Error creating user. \
+			except Exception as e:
+				message = "Error setting up award creator. \
 					  Please try again."
+				errorPrint("Error: " + repr(e))
 				session.rollback()
 				user = session.query(User).filter_by(
 					email=email).first()

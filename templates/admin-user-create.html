@@ -2,7 +2,7 @@
 
 {% block body_block %}
 	<h1>Create user</h1>
-	<form action="/admin/user/create" method="POST">
+	<form action="/admin/user/create" method="POST" enctype="multipart/form-data">
 	<div class="formMain">
 	<div class="formLeft">
 		<label for="fname">First name:&nbsp;</label>
@@ -31,11 +31,17 @@
 		<input type="text" name="city">
 		<div class="floatClear"></div>
 
-		<label for="city">State:&nbsp;</label>
+		<label for="state">State:&nbsp;</label>
 		<input type="text" name="state">
 		<div class="floatClear"></div>
 
-		<input class="formSubmit" type="submit" value="Submit changes">
+ 		<label for="user-signature" class="fileLabel">
+			Signature:&nbsp;</label>
+		<input type="file" name="signature"> 
+		<div class="floatClear"></div>
+
+
+		<input class="formSubmit" type="submit" value="Create user">
 	</div>
 	</div>
 	</form>
