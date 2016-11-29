@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block body_block %}
-	<h1>Create user</h1>
+	<h1 style="margin-bottom:25px;">Create user</h1>
 	<form action="/admin/user/create" 
 		method="POST" enctype="multipart/form-data">
 	<div class="formMain" style="width: 790px; overflow:hidden; 
@@ -11,23 +11,25 @@
   		<p style="font-weight:bold">Required for all:</p>
 		<label for="fname">First name:&nbsp;</label>
 		<input type="text" name="fname" 
-			style="float:right; margin-right:45px;">
+			style="float:right; margin-right:5px; width:208px;">
 		<div class="floatClear"></div>
 
 		<label for="lname">Last name:&nbsp;</label>
 		<input type="text" name="lname" style="float:right; 
-			margin-right:45px;">
+			margin-right:5px; width:208px;">
 		<div class="floatClear"></div>
   
   		<label for="email">Email:&nbsp;</label>
 		<input type="text" name="email" style="float:right; 
-			margin-right:45px;">
+			margin-right:5px; width:208px;">
 		<div class="floatClear"></div>
 
                 <div class="floatClear"></div>
                 <label for="admin">Admin&nbsp;</label>
                 <input style="width:15px; padding-top:2px;" type="checkbox" 
 			name="admin">
+                <div class="floatClear"></div>
+
 
 	</div>
 	<div class="formRight" style="float:left; width:350px;">
@@ -35,12 +37,12 @@
   		<div class="floatClear"></div>
 		<label for="org">Organization:&nbsp;</label>
 		<input type="text" name="org" style="float:right; 
-			margin-right:75px;">
+			margin-right:35px; width:208px;">
   		<div class="floatClear"></div>
 
 		<label for="city">City:&nbsp;</label>
 		<input type="text" name="city" style="float:right; 
-			margin-right:75px;">
+			margin-right:35px; width:208px;">
 		<div class="floatClear"></div>
 
 		<label for="state">State:&nbsp;</label>
@@ -54,9 +56,12 @@
 		<input style="width:215px; float:right; 
 			margin-right:28px;" type="file" name="signature"></div>
 		<div class="floatClear"></div>
+		
+		<br />
+		<input class="formSubmit" type="submit" value="Create user"
+			style="float:right; margin-right:35px;">
 
 	</div>
-		<input class="formSubmit" type="submit" value="Create user">
 	</div>
 	</form>
         <br /><br />
