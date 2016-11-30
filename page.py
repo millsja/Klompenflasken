@@ -37,10 +37,10 @@ homeLinks = [ Link("/admin", "Admin"),
 homePage = Page("Klompendansen", homeLinks)
 
 # default homepage info - logged in
-homeLinks = [ Link("/admin", "Admin"),
+loggedInLinks = [ Link("/admin", "Admin"),
 		Link("/awards", "Awards"),
 		Link("/logout", "Log out") ]
-homePage = Page("Klompendansen", homeLinks)
+loggedInPage = Page("Klompendansen", loggedInLinks)
 
 
 # default awards page info
