@@ -1,16 +1,16 @@
-div.formLeft {
+div.formLeftUser {
 	padding-right: 15px;
 	width: 300px;
 	float: left;
 	margin-right: 15px;
 }
 
-div.formRight {
+div.formRightUser {
 	width: 300px;
 	float: left;
 }
 
-div.formMain {
+div.formMainUser {
 	margin-left:auto;
 	margin-right:auto;
 	text-align: left;
@@ -19,31 +19,35 @@ div.formMain {
 	margin-top: 30px;
 }
 
-.formRight input, .formLeft input, .formMain select {
+.formRightUser input, 
+.formLeftUser input, 
+.formMainUser select {
 	width: 100%;
 }
 
-.formMain select {
+.formMainUser select {
 	height: 30px;
 }
 
-.formRight label, .formLeft label {
+.formRightUser label, 
+.formLeftUser label {
 	margin-bottom: 0px;
 }
 
-.formMain input[type="file"] {
+.formMainUser input[type="file"] {
 	height: 49px;
 }
 
-.fileLabel {
+.fileLabelUser {
 	margin-top: 5px;
 }
 
-.formSubmit {
+.formSubmitUser {
 	margin-top: 15px;
 }
 
-#awardsForm .formSubmit, .updateSubmit {
+#awardsForm .formSubmitUser, 
+.updateSubmitUser {
 	margin-left: auto;
 	margin-right: auto;
 	display: block;
@@ -83,16 +87,17 @@ div.formMain {
 	color: red;
 }
 
-div.floatClear { 
+div.floatClearUser { 
 	margin-bottom:7px;
 	clear: both; 
 }
 
-table {
+.delete-awards-table {
 	margin-top: 30px;
 }
 
-td, th {
+.delete-awards-table td, 
+.delete-awards-table th {
 	padding: 10px 15px;
 	border: 1px solid;
 }
@@ -103,12 +108,12 @@ td, th {
 	max-width: 80%;
 	margin: 0 auto 40px;
 }
-.block-center {
-	width: 25%;
+.block-center-user {
+	width: 30%;
 	margin: 20px auto 0;
 }
-.block-side {
+/*.block-side {
 	display: inline-block;
 	width: 25%;
 	margin: 10px 5px 20px 5px;
-}
+}*/
