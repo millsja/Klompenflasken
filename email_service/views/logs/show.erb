@@ -1,33 +1,53 @@
-<h1>
-  Logs for: <%= @id %>
-</h1>
+<div class="page-header">
+  <h1>Logs for: <%= @id %></h1>
+</div>
 
 <% unless @errors.empty? %>
   <h2>
-    Errors related to log: <%= @id %>
+    Errors
   </h2>
-  <% @errors.each do |error| %>
-    <h4><%= error.received %></h4>
-    <h4><%= error.method   %></h4>
-    <h4><%= error.info     %></h4>
-  <% end %>
+  <table class="table table-bordered table-hover">
+    <thead class="thead-default">
+      <tr>
+        <th>Error Received</th>
+        <th>Method requested</th>
+        <th>Information</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @errors.each do |error| %>
+        <tr>
+          <td><%= error.received %></td>
+          <td><%= error.method   %></td>
+          <td class="long"><%= error.info     %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 <% else %>
   <h2>
-    No errors related to log: <%= @id %>
+    No errors for this log
   </h2>
 <% end %>
 
 <% unless @requests.empty? %>
   <h2>
-    Requests related to log: <%= @id %>
+    Requests
   </h2>
-  <% @requests.each do |request| %>
-    <h4><%= request.received %></h4>
-    <h4><%= request.method   %></h4>
-    <h4><%= request.info     %></h4>
-  <% end %>
+  <table class="table table-bordered">
+    <th>Request Received</th>
+    <th>Method requested</th>
+    <th>Information</th>
+    <% @requests.each do |request| %>
+      <tr>
+        <td><%= request.received %></td>
+        <td><%= request.method   %></td>
+        <td class="long"><%= request.info     %></td>
+      </tr>
+    <% end %>
+  </table>
 <% else %>
   <h2>
-    No requests related to log: <%= @id %>
+    No requests for this log
   </h2>
 <% end %>

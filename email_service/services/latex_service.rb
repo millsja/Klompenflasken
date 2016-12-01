@@ -1,5 +1,6 @@
 require 'prawn'
 require 'date'
+require 'base64'
 require_relative '../models/missing_fields_error'
 
 class LatexService
@@ -21,12 +22,33 @@ class LatexService
   end
 
   def generate_pdf
-    pdf = Prawn::Document.new
-    pdf.text "#{@recipient_first_name} #{@recipient_last_name}"
-    pdf.text "#{Date.parse(@award_date)} #{@recipient_email} #{@award_type}"
-    pdf.text "#{@awarder_first_name} #{@awarder_last_name} #{@awarder_signature}"
-    pdf.render_file("Test.pdf")
-    return "Test.pdf"
+    pdf = 'certificate.pdf'
+    recipient = recipient_full_name
+    awarder = awarder_full_name
+    signature = decode_signature
+    award = @award_type
+    date = @award_date.to_time.strftime("%B %d, %Y")
+
+    Prawn::Document.generate(pdf, page_layout: :landscape, :background => "./background.png") do
+      move_down 50
+      text award, align: :center, size: 42
+      move_down 10
+      text "Awarded to #{recipient}", align: :center, size: 30
+      move_down 10
+      text "On #{date}", align: :center, size: 24
+
+      stroke do
+        horizontal_line 480, 650, at: 75
+      end
+
+      image signature, vposition: 390, position: 500, width: 150
+
+      move_down 225
+
+      text_box s = awarder, at: [500, 60], size: 18
+    end
+
+    pdf
   end
 
   def self.validate_params(params)
@@ -43,6 +65,25 @@ class LatexService
   end
 
   private
+
+  def recipient_full_name
+    "#{@recipient_first_name} #{@recipient_last_name}"
+  end
+
+  def awarder_full_name
+    "#{@awarder_first_name} #{@awarder_last_name}"
+  end
+
+  def decode_signature
+    signature = @awarder_signature
+    signature_path = 'signature.jpg'
+
+    File.open(signature_path, 'wb') do |f|
+      f.write(Base64.decode64(signature))
+    end
+
+    signature_path
+  end
 
   def self.valid_date?(date)
     return false if date.nil?

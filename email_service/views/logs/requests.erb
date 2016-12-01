@@ -1,19 +1,33 @@
 <% if @logs.empty? %>
-  <h1>No requests have been logged yet</h1>
+  <div class="page-header">
+    <h1>No Requests Logged Yet</h1>
+  </div>
 <% else %>
-  <h1>
-    Logged Requests
-  </h1>
+  <div class="page-header">
+    <h1>Logged Requests</h1>
+  </div>
 
-  <% @logs.each do |log| %>
-    <h3>
-      <a href=<%=log.shared_log_id %>>
-        View all related logs
-      </a>
-    </h3>
-    <h3><%= log.received %></h3>
-    <h3><%= log.method %></h3>
-    <h3><%= log.info %></h3>
-    </br>
-  <% end %>
+  <table class="table table-bordered table-hover">
+    <thead class="thead-default">
+      <tr>
+        <th>Shared Log Id</th>
+        <th>Request Received</th>
+        <th>Method requested</th>
+        <th>Information</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @logs.each do |log| %>
+        <tr>
+          <td>
+            <a href=<%= log.shared_log_id %>>
+              <%= log.shared_log_id %>
+            </a>
+          </td>
+          <td><%= log.received %></td>
+          <td><%= log.method %></td>
+          <td class="long"><%= log.info %></td>
+        </tr>
+      <% end %>
+    </tbody>
 <% end %>
