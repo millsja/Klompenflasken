@@ -1,0 +1,17 @@
+<html>
+  <head>
+    <link href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' rel='stylesheet' />
+    <link rel='stylesheet' type='text/css' href='/style.css' />
+  </head>
+  <body>
+    <nav class="navbar navbar-inverse">
+      <ul class="nav navbar-nav">
+        <li><a href="/logs/requests">View Requests</a></li>
+        <li><a href="/logs/errors">View Errors</a></li>
+      </ul>
+    </nav>
+    <div class="container">
+      <%= yield %>
+    </div>
+  </body>
+</html>
