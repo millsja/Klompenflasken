@@ -771,6 +771,15 @@ def adminUserCreate():
 		admin = request.form.get('admin', False)
 		passwd = passwdModule.resetPasswd( fname = fname, email = email )
 
+		if fname == None or
+			lname == None or
+			email == None:
+				message = "Error setting up award creator. \
+					  First name, last name, and email \
+					  must not be blank."
+				return render_template('error.html', 
+					message = message, page = adminPage) 
+			
 		# in case of erroneous data, let's error handle
 		try:
 			newUser = User(fname, lname, email, passwd, admin)
